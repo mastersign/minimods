@@ -58,6 +58,8 @@ namespace de.mastersign.minimods.bitmaptools
         /// <param name="width">The width of the image.</param>
         /// <param name="height">The height of the image.</param>
         /// <returns>The created <see cref="Bitmap"/>.</returns>
+        /// <exception cref="ArgumentException">Is thrown,
+        /// if an invalid size for the bitmap is given.</exception>
         public static Bitmap CreateGrayScaleBitmap(int width, int height)
         {
             CheckSize(width, height);
@@ -72,6 +74,8 @@ namespace de.mastersign.minimods.bitmaptools
         /// <param name="width">The width of the image.</param>
         /// <param name="height">The height of the image.</param>
         /// <returns>The created <see cref="Bitmap"/>.</returns>
+        /// <exception cref="ArgumentException">Is thrown,
+        /// if an invalid size for the bitmap is given.</exception>
         public static Bitmap CreateRgbBitmap(int width, int height)
         {
             CheckSize(width, height);
@@ -84,6 +88,8 @@ namespace de.mastersign.minimods.bitmaptools
         /// <param name="width">The width of the image.</param>
         /// <param name="height">The height of the image.</param>
         /// <returns>The created <see cref="Bitmap"/>.</returns>
+        /// <exception cref="ArgumentException">Is thrown,
+        /// if an invalid size for the bitmap is given.</exception>
         public static Bitmap CreateArgbBitmap(int width, int height)
         {
             CheckSize(width, height);
@@ -100,6 +106,8 @@ namespace de.mastersign.minimods.bitmaptools
         /// </summary>
         /// <param name="m">The array with the intensity data.</param>
         /// <returns>The created <see cref="Bitmap"/>.</returns>
+        /// <exception cref="ArgumentNullException">Is thrown, 
+        /// if <c>null</c> is given for <paramref name="m"/>.</exception>
         public static Bitmap CreateFromArray(byte[,] m)
         {
             if (m == null) throw new ArgumentNullException("m");
@@ -134,6 +142,9 @@ namespace de.mastersign.minimods.bitmaptools
         /// <param name="g">The array with the intensity data for the green channel.</param>
         /// <param name="b">The array with the intensity data for the blue channel.</param>
         /// <returns>The created <see cref="Bitmap"/>.</returns>
+        /// <exception cref="ArgumentNullException">Is thrown, 
+        /// if <c>null</c> is given for <paramref name="r"/>,
+        /// <paramref name="g"/>, or <paramref name="b"/>.</exception>
         public static Bitmap CreateFromArray(byte[,] r, byte[,] g, byte[,] b)
         {
             if (r == null) throw new ArgumentNullException("r");
@@ -175,6 +186,9 @@ namespace de.mastersign.minimods.bitmaptools
         /// <param name="g">The array with the intensity data for the green channel.</param>
         /// <param name="b">The array with the intensity data for the blue channel.</param>
         /// <returns>The created <see cref="Bitmap"/>.</returns>
+        /// <exception cref="ArgumentNullException">Is thrown, 
+        /// if <c>null</c> is given for <paramref name="a"/>, <paramref name="r"/>,
+        /// <paramref name="g"/>, or <paramref name="b"/>.</exception>
         public static Bitmap CreateFromArray(byte[,] a, byte[,] r, byte[,] g, byte[,] b)
         {
             if (a == null) throw new ArgumentNullException("a");
@@ -215,6 +229,8 @@ namespace de.mastersign.minimods.bitmaptools
         /// </summary>
         /// <param name="m">The array with the image data.</param>
         /// <returns>The created <see cref="Bitmap"/>.</returns>
+        /// <exception cref="ArgumentNullException">Is thrown, 
+        /// if <c>null</c> is given for <paramref name="m"/>.</exception>
         public static Bitmap CreateFromRgbArray(byte[, ,] m)
         {
             if (m == null) throw new ArgumentNullException("m");
@@ -252,6 +268,8 @@ namespace de.mastersign.minimods.bitmaptools
         /// </summary>
         /// <param name="m">The array with the image data.</param>
         /// <returns>The created <see cref="Bitmap"/>.</returns>
+        /// <exception cref="ArgumentNullException">Is thrown, 
+        /// if <c>null</c> is given for <paramref name="m"/>.</exception>
         public static Bitmap CreateFromArgbArray(byte[, ,] m)
         {
             if (m == null) throw new ArgumentNullException("m");
@@ -305,15 +323,34 @@ namespace de.mastersign.minimods.bitmaptools
             }
         }
 
+        /// <summary>
+        /// Sets the palette of a 8Bit indexed bitmap to a linear gray gradient.
+        /// </summary>
+        /// <param name="bmp">The bitmap.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Is thrown if <c>null</c> is given for <paramref name="bmp"/>.</exception>
+        /// <exception cref="ArgumentException">
+        /// Is thrown if the given bitmap has not 8Bit indexed pixel format.</exception>
         public static void SetPaletteToGrayScale(this Bitmap bmp)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (bmp.PixelFormat != PixelFormat.Format8bppIndexed)
+            {
+                throw new ArgumentException("The given bitmap is no 8Bit index bitmap.", "bmp");
+            }
+            bmp.Palette = paletteGrayScale;
         }
 
         #endregion
 
         #region conversion
 
+        /// <summary>
+        /// Reads the image data from the <see cref="Bitmap"/> and copies it into a
+        /// two-dimensional array.
+        /// </summary>
+        /// <param name="bmp">The <see cref="Bitmap"/>.</param>
+        /// <returns></returns>
         public static byte[,] ToGrayScaleArray(this Bitmap bmp)
         {
             throw new NotImplementedException();
