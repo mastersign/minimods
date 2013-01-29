@@ -25,10 +25,6 @@ namespace de.mastersign.minimods.bitmaptools
 {
     public static class BitmapTools
     {
-        public static Bitmap CreateFromArray(byte[,] m)
-        {
-            throw new NotImplementedException();
-        }
     }
 
     /// <summary>
@@ -58,20 +54,5 @@ namespace de.mastersign.minimods.bitmaptools
         }
 
         #endregion
-
-        public static byte[,] ToGrayScaleArray(this Bitmap bmp)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static byte[,,] ToRgbArray(this Bitmap bmp)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static byte[,,] ToArgbArray(this Bitmap bmp)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
