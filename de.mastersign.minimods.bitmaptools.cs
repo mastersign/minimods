@@ -115,18 +115,7 @@ namespace de.mastersign.minimods.bitmaptools
             var cols = m.GetLength(1);
             CheckSize(cols, rows);
             var bmp = CreateGrayScaleBitmap(cols, rows);
-            var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
-                ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
-            var line = bmpData.Scan0;
-            for (var y = 0; y < rows; y++)
-            {
-                for (var x = 0; x < cols; x++)
-                {
-                    Marshal.WriteByte(line, x, m[y, x]);
-                }
-                line += bmpData.Stride;
-            }
-            bmp.UnlockBits(bmpData);
+            bmp.CopyFromArray(m);
             return bmp;
         }
 
@@ -154,21 +143,7 @@ namespace de.mastersign.minimods.bitmaptools
             var cols = Math.Min(r.GetLength(1), Math.Min(g.GetLength(1), b.GetLength(1)));
             CheckSize(cols, rows);
             var bmp = CreateRgbBitmap(cols, rows);
-            var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
-                ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
-            var line = bmpData.Scan0;
-            for (var y = 0; y < rows; y++)
-            {
-                for (var x = 0; x < cols; x++)
-                {
-                    var ofs = x * 3;
-                    Marshal.WriteByte(line, ofs + 0, r[y, x]);
-                    Marshal.WriteByte(line, ofs + 1, g[y, x]);
-                    Marshal.WriteByte(line, ofs + 2, b[y, x]);
-                }
-                line += bmpData.Stride;
-            }
-            bmp.UnlockBits(bmpData);
+            bmp.CopyFromArray(r, g, b);
             return bmp;
         }
 
@@ -199,31 +174,18 @@ namespace de.mastersign.minimods.bitmaptools
             var cols = Math.Min(a.GetLength(1), Math.Min(r.GetLength(1), Math.Min(g.GetLength(1), b.GetLength(1))));
             CheckSize(cols, rows);
             var bmp = CreateArgbBitmap(cols, rows);
-            var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
-                ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-            var line = bmpData.Scan0;
-            for (var y = 0; y < rows; y++)
-            {
-                for (var x = 0; x < cols; x++)
-                {
-                    var ofs = x * 4;
-                    Marshal.WriteByte(line, ofs + 0, a[y, x]);
-                    Marshal.WriteByte(line, ofs + 1, r[y, x]);
-                    Marshal.WriteByte(line, ofs + 2, g[y, x]);
-                    Marshal.WriteByte(line, ofs + 3, b[y, x]);
-                }
-                line += bmpData.Stride;
-            }
-            bmp.UnlockBits(bmpData);
+            bmp.CopyFromArray(a, r, g, b);
             return bmp;
         }
 
         /// <summary>
-        /// Creates a new 24Bit RGB <see cref="Bitmap"/> with a bit depth of 8Bits per channel.
-        /// The data is copied from the given <see cref="Byte"/> arrays.
+        /// Creates a new <see cref="Bitmap"/> with a bit depth of 8Bits per channel.
+        /// The data is copied from the given <see cref="Byte"/> array.
+        /// The pixel format of the result bitmap depends on the size of third dimension
+        /// of <paramref name="m"/> (1: 8Bit indexed, 3: 24Bit RGB, 4: 32Bit ARGB).
         /// The first index of an array is the row index (Y),
         /// the second index is the column index (X) 
-        /// and the third index is the channel (r, g, b).
+        /// and the third index is the channel (gray), (r, g, b) or (a, r, g, b).
         /// Every element of an array is interpreted as an intensity value.
         /// A value of <c>0</c> means minimum intensity and a value of <c>255</c> means maximum intensity.
         /// </summary>
@@ -231,28 +193,29 @@ namespace de.mastersign.minimods.bitmaptools
         /// <returns>The created <see cref="Bitmap"/>.</returns>
         /// <exception cref="ArgumentNullException">Is thrown, 
         /// if <c>null</c> is given for <paramref name="m"/>.</exception>
-        public static Bitmap CreateFromRgbArray(byte[, ,] m)
+        public static Bitmap CreateFromArray(byte[, ,] m)
         {
             if (m == null) throw new ArgumentNullException("m");
             var rows = m.GetLength(0);
             var cols = m.GetLength(1);
             CheckSize(cols, rows);
-            var bmp = CreateRgbBitmap(cols, rows);
-            var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
-                ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
-            var line = bmpData.Scan0;
-            for (var y = 0; y < rows; y++)
+            var channels = m.GetLength(2);
+            Bitmap bmp;
+            switch (channels)
             {
-                for (var x = 0; x < cols; x++)
-                {
-                    var ofs = x * 3;
-                    Marshal.WriteByte(line, ofs + 0, m[y, x, 0]);
-                    Marshal.WriteByte(line, ofs + 1, m[y, x, 1]);
-                    Marshal.WriteByte(line, ofs + 2, m[y, x, 2]);
-                }
-                line += bmpData.Stride;
+                case 1:
+                    bmp = CreateGrayScaleBitmap(cols, rows);
+                    break;
+                case 3:
+                    bmp = CreateRgbBitmap(cols, rows);
+                    break;
+                case 4:
+                    bmp = CreateRgbBitmap(cols, rows);
+                    break;
+                default:
+                    throw new ArgumentException("The size of the array in the thrid dimension is neither 1, nor 3 or 4 (Gray Scale, RGB, ARGB).", "m");
             }
-            bmp.UnlockBits(bmpData);
+            bmp.CopyFromArray(m);
             return bmp;
         }
 
@@ -330,13 +293,13 @@ namespace de.mastersign.minimods.bitmaptools
         /// <exception cref="ArgumentNullException">
         /// Is thrown if <c>null</c> is given for <paramref name="bmp"/>.</exception>
         /// <exception cref="ArgumentException">
-        /// Is thrown if the given bitmap has not 8Bit indexed pixel format.</exception>
+        /// Is thrown if the given bitmap has no 8Bit indexed pixel format.</exception>
         public static void SetPaletteToGrayScale(this Bitmap bmp)
         {
             if (bmp == null) throw new ArgumentNullException("bmp");
             if (bmp.PixelFormat != PixelFormat.Format8bppIndexed)
             {
-                throw new ArgumentException("The given bitmap is no 8Bit index bitmap.", "bmp");
+                throw new ArgumentException("The given bitmap is no 8Bit indexed bitmap.", "bmp");
             }
             bmp.Palette = paletteGrayScale;
         }
@@ -347,63 +310,500 @@ namespace de.mastersign.minimods.bitmaptools
 
         /// <summary>
         /// Reads the image data from the <see cref="Bitmap"/> and copies it into a
-        /// two-dimensional array.
+        /// new two-dimensional array.
         /// </summary>
         /// <param name="bmp">The <see cref="Bitmap"/>.</param>
-        /// <returns></returns>
+        /// <returns>The created array.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Is thrown if <c>null</c> is given for <paramref name="bmp"/>.</exception>
+        /// <exception cref="ArgumentException">
+        /// Is thrown if the bitmap has no 8Bit indexed pixel format.</exception>
         public static byte[,] ToGrayScaleArray(this Bitmap bmp)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (bmp.PixelFormat != PixelFormat.Format8bppIndexed)
+            {
+                throw new ArgumentException("The given bitmap is no 8Bit indexed bitmap.", "bmp");
+            }
+            var rows = bmp.Height;
+            var cols = bmp.Width;
+            var m = new byte[rows, cols];
+            InternalCopyToArray(bmp, m, rows, cols);
+            return m;
         }
 
+        /// <summary>
+        /// Reads the image data from the <see cref="Bitmap"/> and copies it into a
+        /// new three-dimensional array.
+        /// </summary>
+        /// <param name="bmp">The <see cref="Bitmap"/>.</param>
+        /// <returns>The created array.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Is thrown if <c>null</c> is given for <paramref name="bmp"/>.</exception>
+        /// <exception cref="ArgumentException">
+        /// Is thrown if the bitmap has no 24Bit RGB pixel format.</exception>
         public static byte[, ,] ToRgbArray(this Bitmap bmp)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (bmp.PixelFormat != PixelFormat.Format24bppRgb)
+            {
+                throw new ArgumentException("The given bitmap is no 24Bit RGB bitmap.", "bmp");
+            }
+            var rows = bmp.Height;
+            var cols = bmp.Width;
+            var m = new byte[rows, cols, 3];
+            bmp.CopyToArray(m);
+            return m;
         }
 
+        /// <summary>
+        /// Reads the image data from the <see cref="Bitmap"/> and copies it into a
+        /// new three-dimensional array.
+        /// </summary>
+        /// <param name="bmp">The <see cref="Bitmap"/>.</param>
+        /// <returns>The created array.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Is thrown if <c>null</c> is given for <paramref name="bmp"/>.</exception>
+        /// <exception cref="ArgumentException">
+        /// Is thrown if the bitmap has no 32Bit ARGB pixel format.</exception>
         public static byte[, ,] ToArgbArray(this Bitmap bmp)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (bmp.PixelFormat != PixelFormat.Format32bppArgb)
+            {
+                throw new ArgumentException("The given bitmap is no 32Bit ARGB bitmap.", "bmp");
+            }
+            var rows = bmp.Height;
+            var cols = bmp.Width;
+            var m = new byte[rows, cols, 4];
+            bmp.CopyToArray(m);
+            return m;
         }
 
+        /// <summary>
+        /// Reads the image data from the <see cref="Bitmap"/> and copies it into the
+        /// given two-dimensional array.
+        /// </summary>
+        /// <param name="bmp">The <see cref="Bitmap"/>.</param>
+        /// <param name="m">The array for the intensity data.</param>
+        /// <returns>The created array.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Is thrown if <c>null</c> is given for <paramref name="bmp"/>.</exception>
+        /// <exception cref="ArgumentException">
+        /// Is thrown if the given bitmap has no 8Bit indexed pixel format or the
+        /// the bitmap and the array do not match in size.</exception>
         public static void CopyToArray(this Bitmap bmp, byte[,] m)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (bmp.PixelFormat != PixelFormat.Format8bppIndexed)
+            {
+                throw new ArgumentException("The given bitmap is no 8Bit indexed bitmap.", "bmp");
+            }
+            if (m == null) throw new ArgumentNullException("m");
+            var rows = bmp.Height;
+            var cols = bmp.Width;
+            if (rows != m.GetLength(0) || cols != m.GetLength(1))
+            {
+                throw new ArgumentException("The given bitmap and array do not match in size.");
+            }
+            InternalCopyToArray(bmp, m, rows, cols);
         }
 
-        public static void CopyToArray(this Bitmap bmp, byte[, ,] m)
+        private static void InternalCopyToArray(Bitmap bmp, byte[,] m, int rows, int cols)
         {
-            throw new NotImplementedException();
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
+                ImageLockMode.ReadOnly, PixelFormat.Format8bppIndexed);
+            var line = bmpData.Scan0;
+            for (var y = 0; y < rows; y++)
+            {
+                for (var x = 0; x < cols; x++)
+                {
+                    m[y, x] = Marshal.ReadByte(line, x);
+                }
+                line += bmpData.Stride;
+            }
         }
 
+        /// <summary>
+        /// Reads the image data from the <see cref="Bitmap"/> and copies it into the
+        /// given two-dimensional arrays.
+        /// </summary>
+        /// <param name="bmp">The <see cref="Bitmap"/>.</param>
+        /// <param name="r">The array for the intensity data of the red channel.</param>
+        /// <param name="g">The array for the intensity data of the green channel.</param>
+        /// <param name="b">The array for the intensity data of the blue channel.</param>
+        /// <returns>The created array.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Is thrown if <c>null</c> is given for <paramref name="bmp"/>.</exception>
+        /// <exception cref="ArgumentException">
+        /// Is thrown if the given bitmap has no 24Bit RGB pixel format or the
+        /// the bitmap and the arrays do not match in size.</exception>
         public static void CopyToArray(this Bitmap bmp, byte[,] r, byte[,] g, byte[,] b)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (bmp.PixelFormat != PixelFormat.Format24bppRgb)
+            {
+                throw new ArgumentException("The given bitmap has no 24Bit RGB pixel format.", "bmp");
+            }
+            if (r == null) throw new ArgumentNullException("r");
+            if (g == null) throw new ArgumentNullException("g");
+            if (b == null) throw new ArgumentNullException("b");
+            var rows = Math.Min(r.GetLength(0), Math.Min(g.GetLength(0), b.GetLength(0)));
+            var cols = Math.Min(r.GetLength(1), Math.Min(g.GetLength(1), b.GetLength(1)));
+            if (rows != bmp.Height || cols != bmp.Width)
+            {
+                throw new ArgumentException("The given bitmap and arrays do not match in size.");
+            }
+            InternalCopyToArray(bmp, r, g, b, rows, cols);
         }
 
+        private static void InternalCopyToArray(Bitmap bmp, byte[,] r, byte[,] g, byte[,] b, int rows, int cols)
+        {
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
+                ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+            var line = bmpData.Scan0;
+            for (var y = 0; y < rows; y++)
+            {
+                for (var x = 0; x < cols; x++)
+                {
+                    var ofs = x * 3;
+                    r[y, x] = Marshal.ReadByte(line, ofs + 0);
+                    g[y, x] = Marshal.ReadByte(line, ofs + 1);
+                    b[y, x] = Marshal.ReadByte(line, ofs + 2);
+                }
+                line += bmpData.Stride;
+            }
+        }
+
+        /// <summary>
+        /// Reads the image data from the <see cref="Bitmap"/> and copies it into the
+        /// given two-dimensional arrays.
+        /// </summary>
+        /// <param name="bmp">The <see cref="Bitmap"/>.</param>
+        /// <param name="a">The array for the transparency data of the alpha channel.</param>
+        /// <param name="r">The array for the intensity data of the red channel.</param>
+        /// <param name="g">The array for the intensity data of the green channel.</param>
+        /// <param name="b">The array for the intensity data of the blue channel.</param>
+        /// <returns>The created array.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Is thrown if <c>null</c> is given for <paramref name="bmp"/>.</exception>
+        /// <exception cref="ArgumentException">
+        /// Is thrown if the given bitmap has no 32Bit ARGB pixel format or the
+        /// the bitmap and the arrays do not match in size.</exception>
         public static void CopyToArray(this Bitmap bmp, byte[,] a, byte[,] r, byte[,] g, byte[,] b)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (bmp.PixelFormat != PixelFormat.Format32bppArgb)
+            {
+                throw new ArgumentException("The given bitmap has no 32Bit ARGB pixel format.", "bmp");
+            }
+            if (a == null) throw new ArgumentNullException("a");
+            if (r == null) throw new ArgumentNullException("r");
+            if (g == null) throw new ArgumentNullException("g");
+            if (b == null) throw new ArgumentNullException("b");
+            var rows = Math.Min(a.GetLength(0), Math.Min(r.GetLength(0), Math.Min(g.GetLength(0), b.GetLength(0))));
+            var cols = Math.Min(a.GetLength(1), Math.Min(r.GetLength(1), Math.Min(g.GetLength(1), b.GetLength(1))));
+            if (rows != bmp.Height || cols != bmp.Width)
+            {
+                throw new ArgumentException("The given bitmap and arrays do not match in size.");
+            }
+            InternalCopyToArray(bmp, a, r, g, b, rows, cols);
         }
 
+        private static void InternalCopyToArray(Bitmap bmp, byte[,] a, byte[,] r, byte[,] g, byte[,] b, int rows, int cols)
+        {
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            var line = bmpData.Scan0;
+            for (var y = 0; y < rows; y++)
+            {
+                for (var x = 0; x < cols; x++)
+                {
+                    var ofs = x * 4;
+                    a[y, x] = Marshal.ReadByte(line, ofs + 0);
+                    r[y, x] = Marshal.ReadByte(line, ofs + 1);
+                    g[y, x] = Marshal.ReadByte(line, ofs + 2);
+                    b[y, x] = Marshal.ReadByte(line, ofs + 3);
+                }
+                line += bmpData.Stride;
+            }
+        }
+
+        /// <summary>
+        /// Reads the image data from the <see cref="Bitmap"/> and copies it into the
+        /// given three-dimensional arrays. 
+        /// If the given bitmap is a 8Bit indexed bitmap,
+        /// the array <paramref name="m"/> must have a size of 1 in the third dimension.
+        /// If the given bitmap is a 24Bit RGB bitmap,
+        /// the array <paramref name="m"/> must have a size of 3 in the third dimension.
+        /// If the given bitmap is a 32Bit ARGB bitmap,
+        /// the array <paramref name="m"/> must have a size of 4 in the third dimension.
+        /// </summary>
+        /// <param name="bmp">The <see cref="Bitmap"/>.</param>
+        /// <param name="m">The array for the image data of the bitmap.</param>
+        /// <returns>The created array.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Is thrown if <c>null</c> is given for <paramref name="bmp"/>.</exception>
+        /// <exception cref="ArgumentException">
+        /// Is thrown if the given bitmap has no 32Bit ARGB pixel format or the
+        /// the bitmap and the arrays do not match in size.</exception>
+        public static void CopyToArray(this Bitmap bmp, byte[, ,] m)
+        {
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            var rows = bmp.Height;
+            var cols = bmp.Width;
+            if (rows != m.GetLength(0) || cols != m.GetLength(1))
+            {
+                throw new ArgumentException("The given bitmap and array do not match in size.");
+            }
+            if (bmp.PixelFormat == PixelFormat.Format8bppIndexed)
+            {
+                if (m.GetLength(2) != 1)
+                {
+                    throw new ArgumentException("The third dimension of the given array is unequal one (for the one color channel).", "m");
+                }
+                var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
+                    ImageLockMode.ReadOnly, PixelFormat.Format8bppIndexed);
+                var line = bmpData.Scan0;
+                for (var y = 0; y < rows; y++)
+                {
+                    for (var x = 0; x < cols; x++)
+                    {
+                        m[y, x, 0] = Marshal.ReadByte(line, x);
+                    }
+                    line += bmpData.Stride;
+                }
+            }
+            else if (bmp.PixelFormat == PixelFormat.Format24bppRgb)
+            {
+                if (m.GetLength(2) != 3)
+                {
+                    throw new ArgumentException("The third dimension of the given array is unequal three (for the three color channels).", "m");
+                }
+                var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
+                    ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+                var line = bmpData.Scan0;
+                for (var y = 0; y < rows; y++)
+                {
+                    for (var x = 0; x < cols; x++)
+                    {
+                        var ofs = x * 4;
+                        m[y, x, 0] = Marshal.ReadByte(line, ofs + 0);
+                        m[y, x, 1] = Marshal.ReadByte(line, ofs + 1);
+                        m[y, x, 2] = Marshal.ReadByte(line, ofs + 2);
+                    }
+                    line += bmpData.Stride;
+                }
+            }
+            else if (bmp.PixelFormat == PixelFormat.Format32bppArgb)
+            {
+                if (m.GetLength(2) != 4)
+                {
+                    throw new ArgumentException("The third dimension of the given array is unequal four (for the four color channels).", "m");
+                }
+                var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
+                    ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                var line = bmpData.Scan0;
+                for (var y = 0; y < rows; y++)
+                {
+                    for (var x = 0; x < cols; x++)
+                    {
+                        var ofs = x * 4;
+                        m[y, x, 0] = Marshal.ReadByte(line, ofs + 0);
+                        m[y, x, 1] = Marshal.ReadByte(line, ofs + 1);
+                        m[y, x, 2] = Marshal.ReadByte(line, ofs + 2);
+                        m[y, x, 3] = Marshal.ReadByte(line, ofs + 3);
+                    }
+                    line += bmpData.Stride;
+                }
+            }
+            else
+            {
+                throw new ArgumentException("The given bitmap has neither 24Bit RGB nor 32Bit ARGB pixel format.", "bmp");
+            }
+        }
+
+        /// <summary>
+        /// Reads the image data from the given array and writes it into the bitmap.
+        /// </summary>
+        /// <param name="bmp">The bitmap.</param>
+        /// <param name="m">The array with the image data.</param>
         public static void CopyFromArray(this Bitmap bmp, byte[,] m)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (bmp.PixelFormat != PixelFormat.Format8bppIndexed)
+            {
+                throw new ArgumentException("The given bitmap has no 8Bit indexed pixel format.", "bmp");
+            }
+            if (m == null) throw new ArgumentNullException("m");
+            var rows = bmp.Height;
+            var cols = bmp.Width;
+            if (rows != m.GetLength(0) || cols != m.GetLength(1))
+            {
+                throw new ArgumentException("The given bitmap and array do not match in size.");
+            }
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
+                ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
+            var line = bmpData.Scan0;
+            for (var y = 0; y < rows; y++)
+            {
+                for (var x = 0; x < cols; x++)
+                {
+                    Marshal.WriteByte(line, x, m[y, x]);
+                }
+                line += bmpData.Stride;
+            }
+            bmp.UnlockBits(bmpData);
         }
 
-        public static void CopyFromArray(this Bitmap bmp, byte[, ,] m)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// Reads the image data from the given arrays and writes it into the bitmap.
+        /// </summary>
+        /// <param name="bmp">The bitmap.</param>
+        /// <param name="r">The array with the intensity data of the red channel.</param>
+        /// <param name="g">The array with the intensity data of the green channel.</param>
+        /// <param name="b">The array with the intensity data of the blue channel.</param>
         public static void CopyFromArray(this Bitmap bmp, byte[,] r, byte[,] g, byte[,] b)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (bmp.PixelFormat != PixelFormat.Format24bppRgb)
+            {
+                throw new ArgumentException("The given bitmap has no 24Bit RGB pixel format.", "bmp");
+            }
+            if (r == null) throw new ArgumentNullException("r");
+            if (g == null) throw new ArgumentNullException("g");
+            if (b == null) throw new ArgumentNullException("b");
+            var rows = Math.Min(r.GetLength(0), Math.Min(g.GetLength(0), b.GetLength(0)));
+            var cols = Math.Min(r.GetLength(1), Math.Min(g.GetLength(1), b.GetLength(1)));
+            if (rows != bmp.Height || cols != bmp.Width)
+            {
+                throw new ArgumentException("The given bitmap and arrays do not match in size.");
+            }
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
+                ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+            var line = bmpData.Scan0;
+            for (var y = 0; y < rows; y++)
+            {
+                for (var x = 0; x < cols; x++)
+                {
+                    var ofs = x * 3;
+                    Marshal.WriteByte(line, ofs + 0, r[y, x]);
+                    Marshal.WriteByte(line, ofs + 1, g[y, x]);
+                    Marshal.WriteByte(line, ofs + 2, b[y, x]);
+                }
+                line += bmpData.Stride;
+            }
+            bmp.UnlockBits(bmpData);
         }
 
+        /// <summary>
+        /// Reads the image data from the given arrays and writes it into the bitmap.
+        /// </summary>
+        /// <param name="bmp">The bitmap.</param>
+        /// <param name="a">The array with the transparency data of the alpha channel.</param>
+        /// <param name="r">The array with the intensity data of the red channel.</param>
+        /// <param name="g">The array with the intensity data of the green channel.</param>
+        /// <param name="b">The array with the intensity data of the blue channel.</param>
         public static void CopyFromArray(this Bitmap bmp, byte[,] a, byte[,] r, byte[,] g, byte[,] b)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (bmp.PixelFormat != PixelFormat.Format32bppArgb)
+            {
+                throw new ArgumentException("The given bitmap has no 32Bit ARGB pixel format.", "bmp");
+            }
+            if (a == null) throw new ArgumentNullException("a");
+            if (r == null) throw new ArgumentNullException("r");
+            if (g == null) throw new ArgumentNullException("g");
+            if (b == null) throw new ArgumentNullException("b");
+            var rows = Math.Min(a.GetLength(0), Math.Min(r.GetLength(0), Math.Min(g.GetLength(0), b.GetLength(0))));
+            var cols = Math.Min(a.GetLength(1), Math.Min(r.GetLength(1), Math.Min(g.GetLength(1), b.GetLength(1))));
+            if (rows != bmp.Height || cols != bmp.Width)
+            {
+                throw new ArgumentException("The given bitmap and arrays do not match in size.");
+            }
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
+                ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            var line = bmpData.Scan0;
+            for (var y = 0; y < rows; y++)
+            {
+                for (var x = 0; x < cols; x++)
+                {
+                    var ofs = x * 4;
+                    Marshal.WriteByte(line, ofs + 0, a[y, x]);
+                    Marshal.WriteByte(line, ofs + 1, r[y, x]);
+                    Marshal.WriteByte(line, ofs + 2, g[y, x]);
+                    Marshal.WriteByte(line, ofs + 3, b[y, x]);
+                }
+                line += bmpData.Stride;
+            }
+            bmp.UnlockBits(bmpData);
+        }
+
+        /// <summary>
+        /// Reads the image data from the given array and writes it into the bitmap.
+        /// </summary>
+        /// <param name="bmp">The bitmap.</param>
+        /// <param name="m">The array with the image data.</param>
+        public static void CopyFromArray(this Bitmap bmp, byte[, ,] m)
+        {
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            var rows = m.GetLength(0);
+            var cols = m.GetLength(1);
+            var channels = m.GetLength(2);
+            switch (channels)
+            {
+                case 1:
+                    var bmpData1 = bmp.LockBits(new Rectangle(0, 0, cols, rows),
+                        ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
+                    var line1 = bmpData1.Scan0;
+                    for (var y = 0; y < rows; y++)
+                    {
+                        for (var x = 0; x < cols; x++)
+                        {
+                            Marshal.WriteByte(line1, x, m[y, x, 0]);
+                        }
+                        line1 += bmpData1.Stride;
+                    }
+                    bmp.UnlockBits(bmpData1);
+                    break;
+                case 3:
+                    var bmpData3 = bmp.LockBits(new Rectangle(0, 0, cols, rows),
+                        ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+                    var line3 = bmpData3.Scan0;
+                    for (var y = 0; y < rows; y++)
+                    {
+                        for (var x = 0; x < cols; x++)
+                        {
+                            var ofs = x * 3;
+                            Marshal.WriteByte(line3, ofs + 0, m[y, x, 0]);
+                            Marshal.WriteByte(line3, ofs + 1, m[y, x, 1]);
+                            Marshal.WriteByte(line3, ofs + 2, m[y, x, 2]);
+                        }
+                        line3 += bmpData3.Stride;
+                    }
+                    bmp.UnlockBits(bmpData3);
+                    break;
+                case 4:
+                    var bmpData4 = bmp.LockBits(new Rectangle(0, 0, cols, rows),
+                           ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                    var line4 = bmpData4.Scan0;
+                    for (var y = 0; y < rows; y++)
+                    {
+                        for (var x = 0; x < cols; x++)
+                        {
+                            var ofs = x * 4;
+                            Marshal.WriteByte(line4, ofs + 0, m[y, x, 0]);
+                            Marshal.WriteByte(line4, ofs + 1, m[y, x, 1]);
+                            Marshal.WriteByte(line4, ofs + 2, m[y, x, 2]);
+                            Marshal.WriteByte(line4, ofs + 3, m[y, x, 32]);
+                        }
+                        line4 += bmpData4.Stride;
+                    }
+                    bmp.UnlockBits(bmpData4);
+                    break;
+                default:
+                    throw new ArgumentException("The size of the array in the third dimension is neither 1, nor 3 or 4 (Gray Scale, RGB, ARGB).", "m");
+            }
         }
 
         #endregion
