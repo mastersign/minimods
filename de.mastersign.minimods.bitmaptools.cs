@@ -23,9 +23,33 @@ using System.Text;
 
 namespace de.mastersign.minimods.bitmaptools
 {
+    /// <summary>
+    /// This class is a collection of static helper methods to create
+    /// <see cref="Bitmap"/> objects.
+    /// </summary>
     public static class BitmapTools
     {
         public static Bitmap CreateFromArray(byte[,] m)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Bitmap CreateFromArray(byte[,] r, byte[,] g, byte[,] b)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Bitmap CreateFromArray(byte[,] a, byte[,] r, byte[,] g, byte[,] b)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Bitmap CreateFromRgbArray(byte[, ,] m)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Bitmap CreateFromArgbArray(byte[, ,] m)
         {
             throw new NotImplementedException();
         }
@@ -59,6 +83,8 @@ namespace de.mastersign.minimods.bitmaptools
 
         #endregion
 
+        #region conversion
+
         public static byte[,] ToGrayScaleArray(this Bitmap bmp)
         {
             throw new NotImplementedException();
@@ -73,5 +99,65 @@ namespace de.mastersign.minimods.bitmaptools
         {
             throw new NotImplementedException();
         }
+
+        public static void CopyToArray(this Bitmap bmp, byte[,] m)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void CopyToArray(this Bitmap bmp, byte[,,] m)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void CopyToArray(this Bitmap bmp, byte[,] r, byte[,] g, byte[,] b)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void CopyToArray(this Bitmap bmp, byte[,] a, byte[,] r, byte[,] g, byte[,] b)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region filter
+
+        public static void ApplyFilter(this Bitmap bmp, Transfer f)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void ApplyFilter(this Bitmap bmp, TransferWithPosition f)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void ApplyFilter(this Bitmap bmp, Transfer fR, Transfer fG, Transfer fB)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void ApplyFilter(this Bitmap bmp, Transfer fA, Transfer fR, Transfer fG, Transfer fB)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void ApplyFilter(this Bitmap bmp, TransferWithPosition fR, TransferWithPosition fG, TransferWithPosition fB)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void ApplyFilter(this Bitmap bmp, TransferWithPosition fA, TransferWithPosition fR, TransferWithPosition fG, TransferWithPosition fB)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
+
+    public delegate byte Transfer(byte value);
+
+    public delegate byte TransferWithPosition(int x, int y, byte value);
 }
