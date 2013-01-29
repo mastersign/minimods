@@ -29,6 +29,21 @@ namespace de.mastersign.minimods.bitmaptools
     /// </summary>
     public static class BitmapTools
     {
+        public static Bitmap CreateGrayScaleBitmap(int width, int height)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Bitmap CreateRgbBitmap(int width, int height)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Bitmap CreateArgbBitmap(int width, int height)
+        {
+            throw new NotImplementedException();
+        }
+
         public static Bitmap CreateFromArray(byte[,] m)
         {
             throw new NotImplementedException();
@@ -81,6 +96,11 @@ namespace de.mastersign.minimods.bitmaptools
             }
         }
 
+        public static void SetPaletteToGrayScale(this Bitmap bmp)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region conversion
@@ -90,12 +110,12 @@ namespace de.mastersign.minimods.bitmaptools
             throw new NotImplementedException();
         }
 
-        public static byte[,,] ToRgbArray(this Bitmap bmp)
+        public static byte[, ,] ToRgbArray(this Bitmap bmp)
         {
             throw new NotImplementedException();
         }
 
-        public static byte[,,] ToArgbArray(this Bitmap bmp)
+        public static byte[, ,] ToArgbArray(this Bitmap bmp)
         {
             throw new NotImplementedException();
         }
@@ -116,6 +136,26 @@ namespace de.mastersign.minimods.bitmaptools
         }
 
         public static void CopyToArray(this Bitmap bmp, byte[,] a, byte[,] r, byte[,] g, byte[,] b)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void CopyFromArray(this Bitmap bmp, byte[,] m)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void CopyFromArray(this Bitmap bmp, byte[,,] m)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void CopyFromArray(this Bitmap bmp, byte[,] r, byte[,] g, byte[,] b)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void CopyFromArray(this Bitmap bmp, byte[,] a, byte[,] r, byte[,] g, byte[,] b)
         {
             throw new NotImplementedException();
         }
