@@ -175,7 +175,7 @@ namespace de.mastersign.minimods.chain
     /// <summary>
     /// A static helper class with extension methods for <see cref="Chain{T}"/>.
     /// </summary>
-    public static class Chain
+    public static class ChainExtension
     {
         /// <summary>
         /// Creates a new chain with all elements of <paramref name="enumerable"/>
