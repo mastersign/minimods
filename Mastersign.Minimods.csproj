@@ -32,6 +32,9 @@
     <DocumentationFile>bin\Release\Mastersign.Minimods.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -48,7 +51,11 @@
     <Compile Include="de.mastersign.minimods.bitmaptobitmapsource.cs" />
     <Compile Include="de.mastersign.minimods.bitmaptools.cs" />
     <Compile Include="de.mastersign.minimods.chain.cs" />
+    <Compile Include="de.mastersign.minimods.test.chain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
