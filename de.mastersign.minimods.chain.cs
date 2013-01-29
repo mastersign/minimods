@@ -11,7 +11,7 @@
  * Version: 1.0
  * Last Change: 29.01.2013
  * 
- * URL: ?
+ * URL: https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.chain.cs
  * 
  */
 
