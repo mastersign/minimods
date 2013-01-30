@@ -120,11 +120,13 @@ namespace de.mastersign.minimods.chain
         {
             return IsEmpty
                 ? extension
-                : new Chain<T>(
+                : extension.IsEmpty
+                    ? this
+                    : new Chain<T>(
                         Head,
                         Tail.IsEmpty
-                            ? Tail.Append(extension)
-                            : extension);
+                            ? extension
+                            : Tail.Append(extension));
         }
 
         /// <summary>
