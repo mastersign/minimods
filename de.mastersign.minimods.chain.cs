@@ -120,11 +120,13 @@ namespace de.mastersign.minimods.chain
         {
             return IsEmpty
                 ? extension
-                : new Chain<T>(
+                : extension.IsEmpty
+                    ? this
+                    : new Chain<T>(
                         Head,
                         Tail.IsEmpty
-                            ? Tail.Append(extension)
-                            : extension);
+                            ? extension
+                            : Tail.Append(extension));
         }
 
         /// <summary>
@@ -157,7 +159,9 @@ namespace de.mastersign.minimods.chain
         /// <remarks>Complexity of O(n).</remarks>
         public Chain<T> Reverse()
         {
-            return this.ToChainReverse();
+            return IsEmpty || Tail.IsEmpty
+                ? this
+                : this.Aggregate(new Chain<T>(), (chain, item) => chain.Prepend(item));
         }
 
         /// <summary>
