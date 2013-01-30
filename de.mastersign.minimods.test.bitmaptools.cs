@@ -369,4 +369,54 @@ namespace de.mastersign.minimods.test.bitmaptools
             }
         }
     }
+
+    internal class BitmapExtensionTest
+    {
+        [Test]
+        public void SetPaletteToGrayScaleTest()
+        {
+            Assert.Throws<ArgumentNullException>(
+                () => BitmapExtension.SetPaletteToGrayScale(null));
+
+            var o = new Bitmap(1, 1, PixelFormat.Format8bppIndexed);
+            o.SetPaletteToGrayScale();
+            Assert.IsTrue(o.Palette.Entries.All(c => c.R == c.G && c.G == c.B && c.A == 255));
+        }
+
+        [Test]
+        public void ToGrayScaleArrayTest()
+        {
+            var v = new byte[,]
+                {
+                    { 1, 2, 3 }, 
+                    { 4, 5, 6 }
+                };
+            var w = v.GetLength(1);
+            var h = v.GetLength(0);
+            var o = BitmapTools.CreateFromArray(v);
+
+            Assert.Throws<ArgumentNullException>(
+                () => BitmapExtension.ToGrayScaleArray(null));
+
+            using (var rgb = BitmapTools.CreateRgbBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(
+                    () => rgb.ToGrayScaleArray());
+            }
+
+            var v2 = o.ToGrayScaleArray();
+            Assert.NotNull(v2);
+            Assert.AreEqual(v2.GetLength(0), v.GetLength(0));
+            Assert.AreEqual(v2.GetLength(1), v.GetLength(1));
+            for (var y = 0; y < h; y++)
+            {
+                for (var x = 0; x < w; x++)
+                {
+                    Assert.AreEqual(v[y, x], v2[y, x]);
+                }
+            }
+
+            o.Dispose();
+        }
+    }
 }
