@@ -36,19 +36,19 @@ namespace de.mastersign.minimods.bitmaptools
         {
             if (width < 1)
             {
-                throw new ArgumentException("The width of the bitmap must be at least 1 pixel.", "width");
+                throw new ArgumentOutOfRangeException("The width of the bitmap must be at least 1 pixel.", "width");
             }
             if (width > MAX_SIZE)
             {
-                throw new ArgumentException(string.Format("The width of the bitmap can not be larger then {0} pixels.", MAX_SIZE), "width");
+                throw new ArgumentOutOfRangeException(string.Format("The width of the bitmap can not be larger then {0} pixels.", MAX_SIZE), "width");
             }
             if (height < 1)
             {
-                throw new ArgumentException("The height of the bitmap must be at least 1 pixel.", "height");
+                throw new ArgumentOutOfRangeException("The height of the bitmap must be at least 1 pixel.", "height");
             }
             if (height > MAX_SIZE)
             {
-                throw new ArgumentException(string.Format("The height of the bitmap can not be larger then {0} pixels.", MAX_SIZE), "height");
+                throw new ArgumentOutOfRangeException(string.Format("The height of the bitmap can not be larger then {0} pixels.", MAX_SIZE), "height");
             }
         }
 
@@ -213,7 +213,7 @@ namespace de.mastersign.minimods.bitmaptools
                     bmp = CreateArgbBitmap(cols, rows);
                     break;
                 default:
-                    throw new ArgumentException("The size of the array in the third dimension is neither 1, nor 3 or 4 (Gray Scale, RGB, ARGB).", "m");
+                    throw new ArgumentOutOfRangeException("The size of the array in the third dimension is neither 1, nor 3 or 4 (Gray Scale, RGB, ARGB).", "m");
             }
             bmp.CopyFromArray(m);
             return bmp;
@@ -647,9 +647,9 @@ namespace de.mastersign.minimods.bitmaptools
                 for (var x = 0; x < cols; x++)
                 {
                     var ofs = x * 3;
-                    Marshal.WriteByte(line, ofs + 0, r[y, x]);
+                    Marshal.WriteByte(line, ofs + 0, b[y, x]);
                     Marshal.WriteByte(line, ofs + 1, g[y, x]);
-                    Marshal.WriteByte(line, ofs + 2, b[y, x]);
+                    Marshal.WriteByte(line, ofs + 2, r[y, x]);
                 }
                 line += bmpData.Stride;
             }
@@ -689,10 +689,10 @@ namespace de.mastersign.minimods.bitmaptools
                 for (var x = 0; x < cols; x++)
                 {
                     var ofs = x * 4;
-                    Marshal.WriteByte(line, ofs + 0, a[y, x]);
-                    Marshal.WriteByte(line, ofs + 1, r[y, x]);
-                    Marshal.WriteByte(line, ofs + 2, g[y, x]);
-                    Marshal.WriteByte(line, ofs + 3, b[y, x]);
+                    Marshal.WriteByte(line, ofs + 0, b[y, x]);
+                    Marshal.WriteByte(line, ofs + 1, g[y, x]);
+                    Marshal.WriteByte(line, ofs + 2, r[y, x]);
+                    Marshal.WriteByte(line, ofs + 3, a[y, x]);
                 }
                 line += bmpData.Stride;
             }
@@ -735,9 +735,9 @@ namespace de.mastersign.minimods.bitmaptools
                         for (var x = 0; x < cols; x++)
                         {
                             var ofs = x * 3;
-                            Marshal.WriteByte(line3, ofs + 0, m[y, x, 0]);
+                            Marshal.WriteByte(line3, ofs + 0, m[y, x, 2]);
                             Marshal.WriteByte(line3, ofs + 1, m[y, x, 1]);
-                            Marshal.WriteByte(line3, ofs + 2, m[y, x, 2]);
+                            Marshal.WriteByte(line3, ofs + 2, m[y, x, 0]);
                         }
                         line3 += bmpData3.Stride;
                     }
@@ -752,10 +752,10 @@ namespace de.mastersign.minimods.bitmaptools
                         for (var x = 0; x < cols; x++)
                         {
                             var ofs = x * 4;
-                            Marshal.WriteByte(line4, ofs + 0, m[y, x, 0]);
-                            Marshal.WriteByte(line4, ofs + 1, m[y, x, 1]);
-                            Marshal.WriteByte(line4, ofs + 2, m[y, x, 2]);
-                            Marshal.WriteByte(line4, ofs + 3, m[y, x, 32]);
+                            Marshal.WriteByte(line4, ofs + 0, m[y, x, 3]);
+                            Marshal.WriteByte(line4, ofs + 1, m[y, x, 2]);
+                            Marshal.WriteByte(line4, ofs + 2, m[y, x, 1]);
+                            Marshal.WriteByte(line4, ofs + 3, m[y, x, 0]);
                         }
                         line4 += bmpData4.Stride;
                     }
