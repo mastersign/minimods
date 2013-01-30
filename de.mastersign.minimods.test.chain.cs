@@ -38,8 +38,8 @@ namespace de.mastersign.minimods.test.chain
         public void HeadEqualTest()
         {
             const int h = 42;
-            var o1 = new Chain<int>(42);
-            var o2 = new Chain<int>(42);
+            var o1 = new Chain<int>(h);
+            var o2 = new Chain<int>(h);
             Assert.AreEqual(o1, o2);
         }
 
