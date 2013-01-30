@@ -159,7 +159,9 @@ namespace de.mastersign.minimods.chain
         /// <remarks>Complexity of O(n).</remarks>
         public Chain<T> Reverse()
         {
-            return this.ToChainReverse();
+            return IsEmpty || Tail.IsEmpty
+                ? this
+                : this.Aggregate(new Chain<T>(), (chain, item) => chain.Prepend(item));
         }
 
         /// <summary>
