@@ -208,4 +208,64 @@ namespace de.mastersign.minimods.test.chain
             Assert.IsTrue(v.Zip(o2, (a, b) => a == b).All(p => p));
         }
     }
+
+    internal class ChainExtensionTest
+    {
+        [Test, Category("Algorithm")]
+        public void ToChainReverseEmptyTest()
+        {
+            var v = new int[0];
+            Assert.AreEqual(Chain<int>.Empty, v.ToChainReverse());
+        }
+
+        [Test, Category("Algorithm")]
+        public void ToChainReverseTest()
+        {
+            var v1 = new[] { 42 };
+            var v2 = new[] { 42, 43 };
+            var v3 = new[] { 42, 43, 44 };
+
+            var o1 = v1.ToChainReverse();
+            Array.Reverse(v1);
+            Assert.AreEqual(v1.Length, o1.Count());
+            Assert.IsTrue(v1.Zip(o1, (a, b) => a == b).All(p => p));
+            
+            var o2 = v2.ToChainReverse();
+            Array.Reverse(v2);
+            Assert.AreEqual(v2.Length, o2.Count());
+            Assert.IsTrue(v2.Zip(o2, (a, b) => a == b).All(p => p));
+            
+            var o3 = v3.ToChainReverse();
+            Array.Reverse(v3);
+            Assert.AreEqual(v3.Length, o3.Count());
+            Assert.IsTrue(v3.Zip(o3, (a, b) => a == b).All(p => p));
+        }
+
+        [Test, Category("Algorithm")]
+        public void ToChainEmptyTest()
+        {
+            var v = new int[0];
+            Assert.AreEqual(Chain<int>.Empty, v.ToChain());
+        }
+
+        [Test, Category("Algorithm")]
+        public void ToChainTest()
+        {
+            var v1 = new[] { 42 };
+            var v2 = new[] { 42, 43 };
+            var v3 = new[] { 42, 43, 44 };
+
+            var o1 = v1.ToChain();
+            Assert.AreEqual(v1.Length, o1.Count());
+            Assert.IsTrue(v1.Zip(o1, (a, b) => a == b).All(p => p));
+
+            var o2 = v2.ToChain();
+            Assert.AreEqual(v2.Length, o2.Count());
+            Assert.IsTrue(v2.Zip(o2, (a, b) => a == b).All(p => p));
+
+            var o3 = v3.ToChain();
+            Assert.AreEqual(v3.Length, o3.Count());
+            Assert.IsTrue(v3.Zip(o3, (a, b) => a == b).All(p => p));
+        }
+    }
 }
