@@ -427,9 +427,9 @@ namespace de.mastersign.minimods.bitmaptools
                 for (var x = 0; x < cols; x++)
                 {
                     var ofs = x * 3;
-                    r[y, x] = Marshal.ReadByte(line, ofs + 0);
+                    b[y, x] = Marshal.ReadByte(line, ofs + 0);
                     g[y, x] = Marshal.ReadByte(line, ofs + 1);
-                    b[y, x] = Marshal.ReadByte(line, ofs + 2);
+                    r[y, x] = Marshal.ReadByte(line, ofs + 2);
                 }
                 line += bmpData.Stride;
             }
@@ -480,10 +480,10 @@ namespace de.mastersign.minimods.bitmaptools
                 for (var x = 0; x < cols; x++)
                 {
                     var ofs = x * 4;
-                    a[y, x] = Marshal.ReadByte(line, ofs + 0);
-                    r[y, x] = Marshal.ReadByte(line, ofs + 1);
-                    g[y, x] = Marshal.ReadByte(line, ofs + 2);
-                    b[y, x] = Marshal.ReadByte(line, ofs + 3);
+                    b[y, x] = Marshal.ReadByte(line, ofs + 0);
+                    g[y, x] = Marshal.ReadByte(line, ofs + 1);
+                    r[y, x] = Marshal.ReadByte(line, ofs + 2);
+                    a[y, x] = Marshal.ReadByte(line, ofs + 3);
                 }
                 line += bmpData.Stride;
             }
@@ -548,9 +548,9 @@ namespace de.mastersign.minimods.bitmaptools
                     for (var x = 0; x < cols; x++)
                     {
                         var ofs = x * 4;
-                        m[y, x, 0] = Marshal.ReadByte(line, ofs + 0);
+                        m[y, x, 2] = Marshal.ReadByte(line, ofs + 0);
                         m[y, x, 1] = Marshal.ReadByte(line, ofs + 1);
-                        m[y, x, 2] = Marshal.ReadByte(line, ofs + 2);
+                        m[y, x, 0] = Marshal.ReadByte(line, ofs + 2);
                     }
                     line += bmpData.Stride;
                 }
@@ -569,10 +569,10 @@ namespace de.mastersign.minimods.bitmaptools
                     for (var x = 0; x < cols; x++)
                     {
                         var ofs = x * 4;
-                        m[y, x, 0] = Marshal.ReadByte(line, ofs + 0);
-                        m[y, x, 1] = Marshal.ReadByte(line, ofs + 1);
-                        m[y, x, 2] = Marshal.ReadByte(line, ofs + 2);
-                        m[y, x, 3] = Marshal.ReadByte(line, ofs + 3);
+                        m[y, x, 3] = Marshal.ReadByte(line, ofs + 0);
+                        m[y, x, 2] = Marshal.ReadByte(line, ofs + 1);
+                        m[y, x, 1] = Marshal.ReadByte(line, ofs + 2);
+                        m[y, x, 0] = Marshal.ReadByte(line, ofs + 3);
                     }
                     line += bmpData.Stride;
                 }
@@ -901,9 +901,9 @@ namespace de.mastersign.minimods.bitmaptools
                         for (var x = 0; x < w; x++)
                         {
                             var ofs = x * 3;
-                            Marshal.WriteByte(line, ofs + 0, fR(x, y));
+                            Marshal.WriteByte(line, ofs + 0, fB(x, y));
                             Marshal.WriteByte(line, ofs + 1, fG(x, y));
-                            Marshal.WriteByte(line, ofs + 2, fB(x, y));
+                            Marshal.WriteByte(line, ofs + 2, fR(x, y));
                         }
                         line += bmpData.Stride;
                     }
@@ -918,9 +918,9 @@ namespace de.mastersign.minimods.bitmaptools
                         for (var x = 0; x < w; x++)
                         {
                             var ofs = x * 4;
-                            Marshal.WriteByte(line, ofs + 1, fR(x, y));
-                            Marshal.WriteByte(line, ofs + 2, fG(x, y));
-                            Marshal.WriteByte(line, ofs + 3, fB(x, y));
+                            Marshal.WriteByte(line, ofs + 0, fB(x, y));
+                            Marshal.WriteByte(line, ofs + 1, fG(x, y));
+                            Marshal.WriteByte(line, ofs + 2, fR(x, y));
                         }
                         line += bmpData.Stride;
                     }
@@ -985,9 +985,9 @@ namespace de.mastersign.minimods.bitmaptools
                         for (var x = 0; x < w; x++)
                         {
                             var ofs = x * 3;
-                            Marshal.WriteByte(line, ofs + 0, fR(x, y));
+                            Marshal.WriteByte(line, ofs + 0, fB(x, y));
                             Marshal.WriteByte(line, ofs + 1, fG(x, y));
-                            Marshal.WriteByte(line, ofs + 2, fB(x, y));
+                            Marshal.WriteByte(line, ofs + 2, fR(x, y));
                         }
                         line += bmpData.Stride;
                     }
@@ -1002,10 +1002,10 @@ namespace de.mastersign.minimods.bitmaptools
                         for (var x = 0; x < w; x++)
                         {
                             var ofs = x * 4;
-                            Marshal.WriteByte(line, ofs + 0, fA(x, y));
-                            Marshal.WriteByte(line, ofs + 1, fR(x, y));
-                            Marshal.WriteByte(line, ofs + 2, fG(x, y));
-                            Marshal.WriteByte(line, ofs + 3, fB(x, y));
+                            Marshal.WriteByte(line, ofs + 0, fB(x, y));
+                            Marshal.WriteByte(line, ofs + 1, fG(x, y));
+                            Marshal.WriteByte(line, ofs + 2, fR(x, y));
+                            Marshal.WriteByte(line, ofs + 3, fA(x, y));
                         }
                         line += bmpData.Stride;
                     }
@@ -1066,9 +1066,9 @@ namespace de.mastersign.minimods.bitmaptools
                         {
                             var ofs = x * 3;
                             var c = f(x, y);
-                            Marshal.WriteByte(line, ofs + 0, c.R);
+                            Marshal.WriteByte(line, ofs + 0, c.B);
                             Marshal.WriteByte(line, ofs + 1, c.G);
-                            Marshal.WriteByte(line, ofs + 2, c.B);
+                            Marshal.WriteByte(line, ofs + 2, c.R);
                         }
                         line += bmpData.Stride;
                     }
@@ -1163,9 +1163,9 @@ namespace de.mastersign.minimods.bitmaptools
                         for (var x = 0; x < w; x++)
                         {
                             var ofs = x * 4;
+                            Marshal.WriteByte(line, ofs + 0, f(x, y, Marshal.ReadByte(line, ofs + 0)));
                             Marshal.WriteByte(line, ofs + 1, f(x, y, Marshal.ReadByte(line, ofs + 1)));
                             Marshal.WriteByte(line, ofs + 2, f(x, y, Marshal.ReadByte(line, ofs + 2)));
-                            Marshal.WriteByte(line, ofs + 3, f(x, y, Marshal.ReadByte(line, ofs + 3)));
                         }
                         line += bmpData.Stride;
                     }
@@ -1229,9 +1229,9 @@ namespace de.mastersign.minimods.bitmaptools
                         for (var x = 0; x < w; x++)
                         {
                             var ofs = x * 3;
-                            Marshal.WriteByte(line, ofs + 0, fR(x, y, Marshal.ReadByte(line, ofs + 0)));
+                            Marshal.WriteByte(line, ofs + 0, fB(x, y, Marshal.ReadByte(line, ofs + 0)));
                             Marshal.WriteByte(line, ofs + 1, fG(x, y, Marshal.ReadByte(line, ofs + 1)));
-                            Marshal.WriteByte(line, ofs + 2, fB(x, y, Marshal.ReadByte(line, ofs + 2)));
+                            Marshal.WriteByte(line, ofs + 2, fR(x, y, Marshal.ReadByte(line, ofs + 2)));
                         }
                         line += bmpData.Stride;
                     }
@@ -1246,9 +1246,9 @@ namespace de.mastersign.minimods.bitmaptools
                         for (var x = 0; x < w; x++)
                         {
                             var ofs = x * 4;
-                            Marshal.WriteByte(line, ofs + 1, fR(x, y, Marshal.ReadByte(line, ofs + 1)));
-                            Marshal.WriteByte(line, ofs + 2, fG(x, y, Marshal.ReadByte(line, ofs + 2)));
-                            Marshal.WriteByte(line, ofs + 3, fB(x, y, Marshal.ReadByte(line, ofs + 3)));
+                            Marshal.WriteByte(line, ofs + 0, fB(x, y, Marshal.ReadByte(line, ofs + 0)));
+                            Marshal.WriteByte(line, ofs + 1, fG(x, y, Marshal.ReadByte(line, ofs + 1)));
+                            Marshal.WriteByte(line, ofs + 2, fR(x, y, Marshal.ReadByte(line, ofs + 2)));
                         }
                         line += bmpData.Stride;
                     }
@@ -1313,9 +1313,9 @@ namespace de.mastersign.minimods.bitmaptools
                         for (var x = 0; x < w; x++)
                         {
                             var ofs = x * 3;
-                            Marshal.WriteByte(line, ofs + 0, fR(x, y, Marshal.ReadByte(line, ofs + 0)));
+                            Marshal.WriteByte(line, ofs + 0, fB(x, y, Marshal.ReadByte(line, ofs + 0)));
                             Marshal.WriteByte(line, ofs + 1, fG(x, y, Marshal.ReadByte(line, ofs + 1)));
-                            Marshal.WriteByte(line, ofs + 2, fB(x, y, Marshal.ReadByte(line, ofs + 2)));
+                            Marshal.WriteByte(line, ofs + 2, fR(x, y, Marshal.ReadByte(line, ofs + 2)));
                         }
                         line += bmpData.Stride;
                     }
@@ -1330,10 +1330,10 @@ namespace de.mastersign.minimods.bitmaptools
                         for (var x = 0; x < w; x++)
                         {
                             var ofs = x * 4;
-                            Marshal.WriteByte(line, ofs + 0, fA(x, y, Marshal.ReadByte(line, ofs + 0)));
-                            Marshal.WriteByte(line, ofs + 1, fR(x, y, Marshal.ReadByte(line, ofs + 1)));
-                            Marshal.WriteByte(line, ofs + 2, fG(x, y, Marshal.ReadByte(line, ofs + 2)));
-                            Marshal.WriteByte(line, ofs + 3, fB(x, y, Marshal.ReadByte(line, ofs + 3)));
+                            Marshal.WriteByte(line, ofs + 0, fB(x, y, Marshal.ReadByte(line, ofs + 0)));
+                            Marshal.WriteByte(line, ofs + 1, fG(x, y, Marshal.ReadByte(line, ofs + 1)));
+                            Marshal.WriteByte(line, ofs + 2, fR(x, y, Marshal.ReadByte(line, ofs + 2)));
+                            Marshal.WriteByte(line, ofs + 3, fA(x, y, Marshal.ReadByte(line, ofs + 3)));
                         }
                         line += bmpData.Stride;
                     }
@@ -1396,13 +1396,13 @@ namespace de.mastersign.minimods.bitmaptools
                         {
                             var ofs = x * 3;
                             var c = Color.FromArgb(
-                                Marshal.ReadByte(line, ofs + 0), 
+                                Marshal.ReadByte(line, ofs + 2), 
                                 Marshal.ReadByte(line, ofs + 1), 
-                                Marshal.ReadByte(line, ofs + 2));
+                                Marshal.ReadByte(line, ofs + 0));
                             c = f(x, y, c);
-                            Marshal.WriteByte(line, ofs + 0, c.R);
+                            Marshal.WriteByte(line, ofs + 0, c.B);
                             Marshal.WriteByte(line, ofs + 1, c.G);
-                            Marshal.WriteByte(line, ofs + 2, c.B);
+                            Marshal.WriteByte(line, ofs + 2, c.R);
                         }
                         line += bmpData.Stride;
                     }
