@@ -210,52 +210,12 @@ namespace de.mastersign.minimods.bitmaptools
                     bmp = CreateRgbBitmap(cols, rows);
                     break;
                 case 4:
-                    bmp = CreateRgbBitmap(cols, rows);
+                    bmp = CreateArgbBitmap(cols, rows);
                     break;
                 default:
-                    throw new ArgumentException("The size of the array in the thrid dimension is neither 1, nor 3 or 4 (Gray Scale, RGB, ARGB).", "m");
+                    throw new ArgumentException("The size of the array in the third dimension is neither 1, nor 3 or 4 (Gray Scale, RGB, ARGB).", "m");
             }
             bmp.CopyFromArray(m);
-            return bmp;
-        }
-
-        /// <summary>
-        /// Creates a new 32Bit ARGB <see cref="Bitmap"/> with a bit depth of 8Bits per channel.
-        /// The data is copied from the given <see cref="Byte"/> arrays.
-        /// The first index of an array is the row index (Y),
-        /// the second index is the column index (X) 
-        /// and the third index is the channel (a, r, g, b).
-        /// Every element of an array is interpreted as an intensity value.
-        /// A value of <c>0</c> means minimum intensity and a value of <c>255</c> means maximum intensity.
-        /// For the alpha channel a value of <c>0</c> means transparent and a value of <c>255</c> means opaque.
-        /// </summary>
-        /// <param name="m">The array with the image data.</param>
-        /// <returns>The created <see cref="Bitmap"/>.</returns>
-        /// <exception cref="ArgumentNullException">Is thrown, 
-        /// if <c>null</c> is given for <paramref name="m"/>.</exception>
-        public static Bitmap CreateFromArgbArray(byte[, ,] m)
-        {
-            if (m == null) throw new ArgumentNullException("m");
-            var rows = m.GetLength(0);
-            var cols = m.GetLength(1);
-            CheckSize(cols, rows);
-            var bmp = CreateRgbBitmap(cols, rows);
-            var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
-                ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-            var line = bmpData.Scan0;
-            for (var y = 0; y < rows; y++)
-            {
-                for (var x = 0; x < cols; x++)
-                {
-                    var ofs = x * 4;
-                    Marshal.WriteByte(line, ofs + 0, m[y, x, 0]);
-                    Marshal.WriteByte(line, ofs + 1, m[y, x, 1]);
-                    Marshal.WriteByte(line, ofs + 2, m[y, x, 2]);
-                    Marshal.WriteByte(line, ofs + 3, m[y, x, 32]);
-                }
-                line += bmpData.Stride;
-            }
-            bmp.UnlockBits(bmpData);
             return bmp;
         }
     }
@@ -619,7 +579,7 @@ namespace de.mastersign.minimods.bitmaptools
             }
             else
             {
-                throw new ArgumentException("The given bitmap has neither 24Bit RGB nor 32Bit ARGB pixel format.", "bmp");
+                throw new ArgumentException("The pixel format of the given bitmap is not supported.", "bmp");
             }
         }
 
@@ -808,47 +768,686 @@ namespace de.mastersign.minimods.bitmaptools
 
         #endregion
 
+        #region filling
+
+        /// <summary>
+        /// Fills the image with intensity values, created by calling <paramref name="f"/>.
+        /// For a color image <paramref name="f"/> is only called once for each pixel
+        /// and the returned intensity value is written to all channels.
+        /// If the image has an alpha channel, it remains unchanged.
+        /// </summary>
+        /// <param name="bmp">The image to fill.</param>
+        /// <param name="f">The intensity source function.</param>
+        /// <exception cref="ArgumentNullException">Is thrown,
+        /// if <c>null</c> is given for <paramref name="bmp"/>, or <paramref name="f"/>.</exception>
+        /// <exception cref="ArgumentException">Is thrown,
+        /// if the pixel format of <paramref name="bmp"/> is not one of the following:
+        /// <see cref="PixelFormat.Format8bppIndexed"/>, <see cref="PixelFormat.Format24bppRgb"/>, 
+        /// or <see cref="PixelFormat.Format32bppArgb"/>.
+        /// </exception>
+        public static void FillWith(this Bitmap bmp, IntensitySource f)
+        {
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (f == null) throw new ArgumentNullException("f");
+            var w = bmp.Width;
+            var h = bmp.Height;
+            BitmapData bmpData;
+            IntPtr line;
+            switch (bmp.PixelFormat)
+            {
+                case PixelFormat.Format8bppIndexed:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            Marshal.WriteByte(line, x, f(x, y));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 3;
+                            Marshal.WriteByte(line, ofs + 0, f(x, y));
+                            Marshal.WriteByte(line, ofs + 1, f(x, y));
+                            Marshal.WriteByte(line, ofs + 2, f(x, y));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format32bppArgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 4;
+                            Marshal.WriteByte(line, ofs + 1, f(x, y));
+                            Marshal.WriteByte(line, ofs + 2, f(x, y));
+                            Marshal.WriteByte(line, ofs + 3, f(x, y));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                default:
+                    throw new ArgumentException("The pixel format of the given bitmap is not supported.", "bmp");
+            }
+        }
+
+        /// <summary>
+        /// Fills the image with intensity values, created by calling <paramref name="fR"/>, <paramref name="fG"/>, and <paramref name="fB"/> 
+        /// for each pixel in the respective channel in the image.
+        /// If the image has an alpha channel, it remains unchanged.
+        /// If the bitmap is a gray scale image, only <paramref name="fG"/> is used.
+        /// </summary>
+        /// <param name="bmp">The image to fill.</param>
+        /// <param name="fR">The intensity source function for the red channel.</param>
+        /// <param name="fG">The intensity source function for the green channel.</param>
+        /// <param name="fB">The intensity source function for the blue channel.</param>
+        /// <exception cref="ArgumentNullException">Is thrown,
+        /// if <c>null</c> is given for <paramref name="bmp"/>, <paramref name="fR"/>, <paramref name="fG"/>, or <paramref name="fB"/>.</exception>
+        /// <exception cref="ArgumentException">Is thrown,
+        /// if the pixel format of <paramref name="bmp"/> is not one of the following:
+        /// <see cref="PixelFormat.Format8bppIndexed"/>, 
+        /// <see cref="PixelFormat.Format24bppRgb"/>, 
+        /// or <see cref="PixelFormat.Format32bppArgb"/>.
+        /// </exception>
+        public static void FillWith(this Bitmap bmp, IntensitySource fR, IntensitySource fG, IntensitySource fB)
+        {
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (fR == null) throw new ArgumentNullException("fR");
+            if (fG == null) throw new ArgumentNullException("fG");
+            if (fB == null) throw new ArgumentNullException("fB");
+            var w = bmp.Width;
+            var h = bmp.Height;
+            BitmapData bmpData;
+            IntPtr line;
+            switch (bmp.PixelFormat)
+            {
+                case PixelFormat.Format8bppIndexed:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            Marshal.WriteByte(line, x, fG(x, y));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 3;
+                            Marshal.WriteByte(line, ofs + 0, fR(x, y));
+                            Marshal.WriteByte(line, ofs + 1, fG(x, y));
+                            Marshal.WriteByte(line, ofs + 2, fB(x, y));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format32bppArgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 4;
+                            Marshal.WriteByte(line, ofs + 1, fR(x, y));
+                            Marshal.WriteByte(line, ofs + 2, fG(x, y));
+                            Marshal.WriteByte(line, ofs + 3, fB(x, y));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                default:
+                    throw new ArgumentException("The pixel format of the given bitmap is not supported.", "bmp");
+            }
+        }
+
+        /// <summary>
+        /// Fills the image with intensity values, created by calling <paramref name="fA"/>, <paramref name="fR"/>, <paramref name="fG"/>, and <paramref name="fB"/> 
+        /// for each pixel in the respective channel in the image.
+        /// If the bitmap is a gray scale image, only <paramref name="fG"/> is used.
+        /// </summary>
+        /// <param name="bmp">The image to fill.</param>
+        /// <param name="fA">The transparency source function for the red channel.</param>
+        /// <param name="fR">The intensity source function for the red channel.</param>
+        /// <param name="fG">The intensity source function for the green channel.</param>
+        /// <param name="fB">The intensity source function for the blue channel.</param>
+        /// <exception cref="ArgumentNullException">Is thrown,
+        /// if <c>null</c> is given for <paramref name="bmp"/>, <paramref name="fR"/>, <paramref name="fG"/>, or <paramref name="fB"/>.</exception>
+        /// <exception cref="ArgumentException">Is thrown,
+        /// if the pixel format of <paramref name="bmp"/> is not one of the following:
+        /// <see cref="PixelFormat.Format8bppIndexed"/>, 
+        /// <see cref="PixelFormat.Format24bppRgb"/>, 
+        /// or <see cref="PixelFormat.Format32bppArgb"/>.
+        /// </exception>
+        public static void FillWith(this Bitmap bmp, IntensitySource fA, IntensitySource fR, IntensitySource fG, IntensitySource fB)
+        {
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (fA == null) throw new ArgumentNullException("fA");
+            if (fR == null) throw new ArgumentNullException("fR");
+            if (fG == null) throw new ArgumentNullException("fG");
+            if (fB == null) throw new ArgumentNullException("fB");
+            var w = bmp.Width;
+            var h = bmp.Height;
+            BitmapData bmpData;
+            IntPtr line;
+            switch (bmp.PixelFormat)
+            {
+                case PixelFormat.Format8bppIndexed:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            Marshal.WriteByte(line, x, fG(x, y));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 3;
+                            Marshal.WriteByte(line, ofs + 0, fR(x, y));
+                            Marshal.WriteByte(line, ofs + 1, fG(x, y));
+                            Marshal.WriteByte(line, ofs + 2, fB(x, y));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format32bppArgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 4;
+                            Marshal.WriteByte(line, ofs + 0, fA(x, y));
+                            Marshal.WriteByte(line, ofs + 1, fR(x, y));
+                            Marshal.WriteByte(line, ofs + 2, fG(x, y));
+                            Marshal.WriteByte(line, ofs + 3, fB(x, y));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                default:
+                    throw new ArgumentException("The pixel format of the given bitmap is not supported.", "bmp");
+            }
+        }
+
+        /// <summary>
+        /// Fills the image with intensity values, created by calling <paramref name="f"/>
+        /// for each pixel in the image.
+        /// If the image is a gray scale image, the intensity is used for all three color channels of the input value
+        /// and the intensity of the green output channel is written to the image.
+        /// </summary>
+        /// <param name="bmp">The bitmap to filter.</param>
+        /// <param name="f">The transfer function.</param>
+        /// <exception cref="ArgumentNullException">Is thrown,
+        /// if <c>null</c> is given for <paramref name="bmp"/>, or <paramref name="f"/>.</exception>
+        /// <exception cref="ArgumentException">Is thrown,
+        /// if the pixel format of <paramref name="bmp"/> is not on of the following:
+        /// <see cref="PixelFormat.Format8bppIndexed"/>, 
+        /// <see cref="PixelFormat.Format24bppRgb"/>, 
+        /// or <see cref="PixelFormat.Format32bppArgb"/>.
+        /// </exception>
+        public static void FillWith(this Bitmap bmp, ColorSource f)
+        {
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (f == null) throw new ArgumentNullException("f");
+            var w = bmp.Width;
+            var h = bmp.Height;
+            BitmapData bmpData;
+            IntPtr line;
+            switch (bmp.PixelFormat)
+            {
+                case PixelFormat.Format8bppIndexed:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            Marshal.WriteByte(line, x, f(x, y).G);
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 3;
+                            var c = f(x, y);
+                            Marshal.WriteByte(line, ofs + 0, c.R);
+                            Marshal.WriteByte(line, ofs + 1, c.G);
+                            Marshal.WriteByte(line, ofs + 2, c.B);
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format32bppArgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 4;
+                            var c = f(x, y);
+                            Marshal.WriteInt32(line, ofs, c.ToArgb());
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                default:
+                    throw new ArgumentException("The pixel format of the given bitmap is not supported.", "bmp");
+            }
+        }
+        
+        #endregion
+
         #region filter
 
-        public static void ApplyFilter(this Bitmap bmp, Transfer f)
+        /// <summary>
+        /// Applies the filter function <paramref name="f"/> to every intensity value
+        /// in the image. If the image has an alpha channel, it is not filtered.
+        /// </summary>
+        /// <param name="bmp">The bitmap to filter.</param>
+        /// <param name="f">The transfer function.</param>
+        /// <exception cref="ArgumentNullException">Is thrown,
+        /// if <c>null</c> is given for <paramref name="bmp"/>, or <paramref name="f"/>.</exception>
+        /// <exception cref="ArgumentException">Is thrown,
+        /// if the pixel format of <paramref name="bmp"/> is not one of the following:
+        /// <see cref="PixelFormat.Format8bppIndexed"/>, 
+        /// <see cref="PixelFormat.Format24bppRgb"/>, 
+        /// or <see cref="PixelFormat.Format32bppArgb"/>.
+        /// </exception>
+        public static void ApplyFilter(this Bitmap bmp, IntensityTransfer f)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (f == null) throw new ArgumentNullException("f");
+            var w = bmp.Width;
+            var h = bmp.Height;
+            BitmapData bmpData;
+            IntPtr line;
+            switch (bmp.PixelFormat)
+            {
+                case PixelFormat.Format8bppIndexed:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.ReadWrite, PixelFormat.Format8bppIndexed);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            Marshal.WriteByte(line, x, f(x, y, Marshal.ReadByte(line, x)));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 3;
+                            Marshal.WriteByte(line, ofs + 0, f(x, y, Marshal.ReadByte(line, ofs + 0)));
+                            Marshal.WriteByte(line, ofs + 1, f(x, y, Marshal.ReadByte(line, ofs + 1)));
+                            Marshal.WriteByte(line, ofs + 2, f(x, y, Marshal.ReadByte(line, ofs + 2)));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format32bppArgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 4;
+                            Marshal.WriteByte(line, ofs + 1, f(x, y, Marshal.ReadByte(line, ofs + 1)));
+                            Marshal.WriteByte(line, ofs + 2, f(x, y, Marshal.ReadByte(line, ofs + 2)));
+                            Marshal.WriteByte(line, ofs + 3, f(x, y, Marshal.ReadByte(line, ofs + 3)));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                default:
+                    throw new ArgumentException("The pixel format of the given bitmap is not supported.", "bmp");
+            }
         }
 
-        public static void ApplyFilter(this Bitmap bmp, TransferWithPosition f)
+        /// <summary>
+        /// Applies the filter functions <paramref name="fR"/>, <paramref name="fG"/>, and <paramref name="fB"/> 
+        /// to the intensity values of the respective channel in the image. 
+        /// If the image has an alpha channel, it is not filtered.
+        /// If the bitmap is a gray scale image, only <paramref name="fG"/> is used for the traansfer.
+        /// </summary>
+        /// <param name="bmp">The bitmap to filter.</param>
+        /// <param name="fR">The transfer function for the red channel.</param>
+        /// <param name="fG">The transfer function for the green channel.</param>
+        /// <param name="fB">The transfer function for the blue channel.</param>
+        /// <exception cref="ArgumentNullException">Is thrown,
+        /// if <c>null</c> is given for <paramref name="bmp"/>, <paramref name="fR"/>, <paramref name="fG"/>, or <paramref name="fB"/>.</exception>
+        /// <exception cref="ArgumentException">Is thrown,
+        /// if the pixel format of <paramref name="bmp"/> is not one of the following:
+        /// <see cref="PixelFormat.Format8bppIndexed"/>, 
+        /// <see cref="PixelFormat.Format24bppRgb"/>, 
+        /// or <see cref="PixelFormat.Format32bppArgb"/>.
+        /// </exception>
+        public static void ApplyFilter(this Bitmap bmp, IntensityTransfer fR, IntensityTransfer fG, IntensityTransfer fB)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (fR == null) throw new ArgumentNullException("fR");
+            if (fG == null) throw new ArgumentNullException("fG");
+            if (fB == null) throw new ArgumentNullException("fB");
+            var w = bmp.Width;
+            var h = bmp.Height;
+            BitmapData bmpData;
+            IntPtr line;
+            switch (bmp.PixelFormat)
+            {
+                case PixelFormat.Format8bppIndexed:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.ReadWrite, PixelFormat.Format8bppIndexed);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            Marshal.WriteByte(line, x, fG(x, y, Marshal.ReadByte(line, x)));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 3;
+                            Marshal.WriteByte(line, ofs + 0, fR(x, y, Marshal.ReadByte(line, ofs + 0)));
+                            Marshal.WriteByte(line, ofs + 1, fG(x, y, Marshal.ReadByte(line, ofs + 1)));
+                            Marshal.WriteByte(line, ofs + 2, fB(x, y, Marshal.ReadByte(line, ofs + 2)));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format32bppArgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 4;
+                            Marshal.WriteByte(line, ofs + 1, fR(x, y, Marshal.ReadByte(line, ofs + 1)));
+                            Marshal.WriteByte(line, ofs + 2, fG(x, y, Marshal.ReadByte(line, ofs + 2)));
+                            Marshal.WriteByte(line, ofs + 3, fB(x, y, Marshal.ReadByte(line, ofs + 3)));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                default:
+                    throw new ArgumentException("The pixel format of the given bitmap is not supported.", "bmp");
+            }
         }
 
-        public static void ApplyFilter(this Bitmap bmp, Transfer fR, Transfer fG, Transfer fB)
+        /// <summary>
+        /// Applies the filter functions <paramref name="fA"/>, <paramref name="fR"/>, <paramref name="fG"/>, and <paramref name="fB"/> 
+        /// to the values of the respective channel in the image.
+        /// If the bitmap is a gray scale image, only <paramref name="fG"/> is used for the traansfer.
+        /// </summary>
+        /// <param name="bmp">The bitmap to filter.</param>
+        /// <param name="fA">The transfer function for the alpha channel.</param>
+        /// <param name="fR">The transfer function for the red channel.</param>
+        /// <param name="fG">The transfer function for the green channel.</param>
+        /// <param name="fB">The transfer function for the blue channel.</param>
+        /// <exception cref="ArgumentNullException">Is thrown,
+        /// if <c>null</c> is given for <paramref name="bmp"/>, <paramref name="fA"/>, <paramref name="fR"/>, <paramref name="fG"/>, or <paramref name="fB"/>.</exception>
+        /// <exception cref="ArgumentException">Is thrown,
+        /// if the pixel format of <paramref name="bmp"/> is not on of the following:
+        /// <see cref="PixelFormat.Format8bppIndexed"/>, 
+        /// <see cref="PixelFormat.Format24bppRgb"/>, 
+        /// or <see cref="PixelFormat.Format32bppArgb"/>.
+        /// </exception>
+        public static void ApplyFilter(this Bitmap bmp, IntensityTransfer fA, IntensityTransfer fR, IntensityTransfer fG, IntensityTransfer fB)
         {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (fA == null) throw new ArgumentNullException("fA");
+            if (fR == null) throw new ArgumentNullException("fR");
+            if (fG == null) throw new ArgumentNullException("fG");
+            if (fB == null) throw new ArgumentNullException("fB");
+            var w = bmp.Width;
+            var h = bmp.Height;
+            BitmapData bmpData;
+            IntPtr line;
+            switch (bmp.PixelFormat)
+            {
+                case PixelFormat.Format8bppIndexed:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.ReadWrite, PixelFormat.Format8bppIndexed);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            Marshal.WriteByte(line, x, fG(x, y, Marshal.ReadByte(line, x)));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 3;
+                            Marshal.WriteByte(line, ofs + 0, fR(x, y, Marshal.ReadByte(line, ofs + 0)));
+                            Marshal.WriteByte(line, ofs + 1, fG(x, y, Marshal.ReadByte(line, ofs + 1)));
+                            Marshal.WriteByte(line, ofs + 2, fB(x, y, Marshal.ReadByte(line, ofs + 2)));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format32bppArgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 4;
+                            Marshal.WriteByte(line, ofs + 0, fA(x, y, Marshal.ReadByte(line, ofs + 0)));
+                            Marshal.WriteByte(line, ofs + 1, fR(x, y, Marshal.ReadByte(line, ofs + 1)));
+                            Marshal.WriteByte(line, ofs + 2, fG(x, y, Marshal.ReadByte(line, ofs + 2)));
+                            Marshal.WriteByte(line, ofs + 3, fB(x, y, Marshal.ReadByte(line, ofs + 3)));
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                default:
+                    throw new ArgumentException("The pixel format of the given bitmap is not supported.", "bmp");
+            }
         }
 
-        public static void ApplyFilter(this Bitmap bmp, Transfer fA, Transfer fR, Transfer fG, Transfer fB)
+        /// <summary>
+        /// Applies the filter function <paramref name="f"/> to the values in the image.
+        /// If the image is a gray scale image, the intensity is used for all three color channels of the input value
+        /// and the intensity of the green output channel is written to the image.
+        /// </summary>
+        /// <param name="bmp">The bitmap to filter.</param>
+        /// <param name="f">The transfer function.</param>
+        /// <exception cref="ArgumentNullException">Is thrown,
+        /// if <c>null</c> is given for <paramref name="bmp"/>, or <paramref name="f"/>.</exception>
+        /// <exception cref="ArgumentException">Is thrown,
+        /// if the pixel format of <paramref name="bmp"/> is not on of the following:
+        /// <see cref="PixelFormat.Format8bppIndexed"/>, 
+        /// <see cref="PixelFormat.Format24bppRgb"/>, 
+        /// or <see cref="PixelFormat.Format32bppArgb"/>.
+        /// </exception>
+        public static void ApplyFilter(this Bitmap bmp, ColorTransfer f)
         {
-            throw new NotImplementedException();
-        }
-
-        public static void ApplyFilter(this Bitmap bmp, TransferWithPosition fR, TransferWithPosition fG, TransferWithPosition fB)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static void ApplyFilter(this Bitmap bmp, TransferWithPosition fA, TransferWithPosition fR, TransferWithPosition fG, TransferWithPosition fB)
-        {
-            throw new NotImplementedException();
+            if (bmp == null) throw new ArgumentNullException("bmp");
+            if (f == null) throw new ArgumentNullException("f");
+            var w = bmp.Width;
+            var h = bmp.Height;
+            BitmapData bmpData;
+            IntPtr line;
+            switch (bmp.PixelFormat)
+            {
+                case PixelFormat.Format8bppIndexed:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.ReadWrite, PixelFormat.Format8bppIndexed);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var v = Marshal.ReadByte(line, x);
+                            var c = Color.FromArgb(v, v, v);
+                            c = f(x, y, c);
+                            Marshal.WriteByte(line, x, c.G);
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 3;
+                            var c = Color.FromArgb(
+                                Marshal.ReadByte(line, ofs + 0), 
+                                Marshal.ReadByte(line, ofs + 1), 
+                                Marshal.ReadByte(line, ofs + 2));
+                            c = f(x, y, c);
+                            Marshal.WriteByte(line, ofs + 0, c.R);
+                            Marshal.WriteByte(line, ofs + 1, c.G);
+                            Marshal.WriteByte(line, ofs + 2, c.B);
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                case PixelFormat.Format32bppArgb:
+                    bmpData = bmp.LockBits(new Rectangle(0, 0, w, h),
+                        ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+                    line = bmpData.Scan0;
+                    for (var y = 0; y < h; y++)
+                    {
+                        for (var x = 0; x < w; x++)
+                        {
+                            var ofs = x * 4;
+                            var c = Color.FromArgb(Marshal.ReadInt32(line, ofs));
+                            c = f(x, y, c);
+                            Marshal.WriteInt32(line, ofs, c.ToArgb());
+                        }
+                        line += bmpData.Stride;
+                    }
+                    bmp.UnlockBits(bmpData);
+                    break;
+                default:
+                    throw new ArgumentException("The pixel format of the given bitmap is not supported.", "bmp");
+            }
         }
 
         #endregion
     }
 
     /// <summary>
-    /// A delegate for an intensity transfer function.
+    /// A delegate for an intensity source function regarding the pixel position.
     /// </summary>
-    /// <param name="value">The original intensity value.</param>
-    /// <returns>The result intensity value.</returns>
-    public delegate byte Transfer(byte value);
+    /// <param name="x">The position of the pixel on the X axis.</param>
+    /// <param name="y">The position of the pixel on the Y axis.</param>
+    /// <returns>The resulting intensity value.</returns>
+    public delegate byte IntensitySource(int x, int y);
+
+    /// <summary>
+    /// A delegate for a color source function regarding the pixel position.
+    /// </summary>
+    /// <param name="x">The position of the pixel on the X axis.</param>
+    /// <param name="y">The position of the pixel on the Y axis.</param>
+    /// <returns>The resulting color value.</returns>
+    public delegate Color ColorSource(int x, int y);
 
     /// <summary>
     /// A delegate for an intensity transfer function regarding the pixel position.
@@ -857,5 +1456,14 @@ namespace de.mastersign.minimods.bitmaptools
     /// <param name="y">The position of the pixel on the Y axis.</param>
     /// <param name="value">The original intensity value.</param>
     /// <returns>The resulting intensity value.</returns>
-    public delegate byte TransferWithPosition(int x, int y, byte value);
+    public delegate byte IntensityTransfer(int x, int y, byte value);
+
+    /// <summary>
+    /// A delegate for a color transfer function regarding the pixel position.
+    /// </summary>
+    /// <param name="x">The position of the pixel on the X axis.</param>
+    /// <param name="y">The position of the pixel on the Y axis.</param>
+    /// <param name="value">The original intensity value.</param>
+    /// <returns>The resulting color value.</returns>
+    public delegate Color ColorTransfer(int x, int y, Color value);
 }
