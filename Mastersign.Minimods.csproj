@@ -51,6 +51,7 @@
     <Compile Include="de.mastersign.minimods.bitmaptobitmapsource.cs" />
     <Compile Include="de.mastersign.minimods.bitmaptools.cs" />
     <Compile Include="de.mastersign.minimods.chain.cs" />
+    <Compile Include="de.mastersign.minimods.test.bitmaptools.cs" />
     <Compile Include="de.mastersign.minimods.test.chain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
