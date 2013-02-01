@@ -137,8 +137,8 @@ namespace de.mastersign.minimods.bitmaptools
             if (r == null) throw new ArgumentNullException("r");
             if (g == null) throw new ArgumentNullException("g");
             if (b == null) throw new ArgumentNullException("b");
-            var rows = Math.Min(r.GetLength(0), Math.Min(g.GetLength(0), b.GetLength(0)));
-            var cols = Math.Min(r.GetLength(1), Math.Min(g.GetLength(1), b.GetLength(1)));
+            var rows = r.GetLength(0);
+            var cols = r.GetLength(1);
             CheckSize(cols, rows);
             var bmp = CreateRgbBitmap(cols, rows);
             bmp.CopyFromArray(r, g, b);
@@ -168,8 +168,8 @@ namespace de.mastersign.minimods.bitmaptools
             if (r == null) throw new ArgumentNullException("r");
             if (g == null) throw new ArgumentNullException("g");
             if (b == null) throw new ArgumentNullException("b");
-            var rows = Math.Min(a.GetLength(0), Math.Min(r.GetLength(0), Math.Min(g.GetLength(0), b.GetLength(0))));
-            var cols = Math.Min(a.GetLength(1), Math.Min(r.GetLength(1), Math.Min(g.GetLength(1), b.GetLength(1))));
+            var rows = a.GetLength(0);
+            var cols = a.GetLength(1);
             CheckSize(cols, rows);
             var bmp = CreateArgbBitmap(cols, rows);
             bmp.CopyFromArray(a, r, g, b);
@@ -406,9 +406,11 @@ namespace de.mastersign.minimods.bitmaptools
             if (r == null) throw new ArgumentNullException("r");
             if (g == null) throw new ArgumentNullException("g");
             if (b == null) throw new ArgumentNullException("b");
-            var rows = Math.Min(r.GetLength(0), Math.Min(g.GetLength(0), b.GetLength(0)));
-            var cols = Math.Min(r.GetLength(1), Math.Min(g.GetLength(1), b.GetLength(1)));
-            if (rows != bmp.Height || cols != bmp.Width)
+            var rows = r.GetLength(0);
+            var cols = r.GetLength(1);
+            if (rows != bmp.Height || cols != bmp.Width ||
+                rows != g.GetLength(0) || cols != g.GetLength(1) ||
+                rows != b.GetLength(0) || cols != b.GetLength(1))
             {
                 throw new ArgumentException("The given bitmap and arrays do not match in size.");
             }
@@ -459,9 +461,12 @@ namespace de.mastersign.minimods.bitmaptools
             if (r == null) throw new ArgumentNullException("r");
             if (g == null) throw new ArgumentNullException("g");
             if (b == null) throw new ArgumentNullException("b");
-            var rows = Math.Min(a.GetLength(0), Math.Min(r.GetLength(0), Math.Min(g.GetLength(0), b.GetLength(0))));
-            var cols = Math.Min(a.GetLength(1), Math.Min(r.GetLength(1), Math.Min(g.GetLength(1), b.GetLength(1))));
-            if (rows != bmp.Height || cols != bmp.Width)
+            var rows = a.GetLength(0);
+            var cols = a.GetLength(1);
+            if (rows != bmp.Height || cols != bmp.Width ||
+                rows != r.GetLength(0) || cols != r.GetLength(1) ||
+                rows != g.GetLength(0) || cols != g.GetLength(1) ||
+                rows != b.GetLength(0) || cols != b.GetLength(1))
             {
                 throw new ArgumentException("The given bitmap and arrays do not match in size.");
             }
@@ -508,17 +513,18 @@ namespace de.mastersign.minimods.bitmaptools
         public static void CopyToArray(this Bitmap bmp, byte[, ,] m)
         {
             if (bmp == null) throw new ArgumentNullException("bmp");
+            if (m == null) throw new ArgumentNullException("m");
             var rows = bmp.Height;
             var cols = bmp.Width;
             if (rows != m.GetLength(0) || cols != m.GetLength(1))
             {
-                throw new ArgumentException("The given bitmap and array do not match in size.");
+                throw new ArgumentOutOfRangeException("The given bitmap and array do not match in size.");
             }
             if (bmp.PixelFormat == PixelFormat.Format8bppIndexed)
             {
                 if (m.GetLength(2) != 1)
                 {
-                    throw new ArgumentException("The third dimension of the given array is unequal one (for the one color channel).", "m");
+                    throw new ArgumentOutOfRangeException("The third dimension of the given array is unequal one (for the one color channel).", "m");
                 }
                 var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
                     ImageLockMode.ReadOnly, PixelFormat.Format8bppIndexed);
@@ -536,7 +542,7 @@ namespace de.mastersign.minimods.bitmaptools
             {
                 if (m.GetLength(2) != 3)
                 {
-                    throw new ArgumentException("The third dimension of the given array is unequal three (for the three color channels).", "m");
+                    throw new ArgumentOutOfRangeException("The third dimension of the given array is unequal three (for the three color channels).", "m");
                 }
                 var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
                     ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
@@ -545,7 +551,7 @@ namespace de.mastersign.minimods.bitmaptools
                 {
                     for (var x = 0; x < cols; x++)
                     {
-                        var ofs = x * 4;
+                        var ofs = x * 3;
                         m[y, x, 2] = Marshal.ReadByte(line, ofs + 0);
                         m[y, x, 1] = Marshal.ReadByte(line, ofs + 1);
                         m[y, x, 0] = Marshal.ReadByte(line, ofs + 2);
@@ -557,7 +563,7 @@ namespace de.mastersign.minimods.bitmaptools
             {
                 if (m.GetLength(2) != 4)
                 {
-                    throw new ArgumentException("The third dimension of the given array is unequal four (for the four color channels).", "m");
+                    throw new ArgumentOutOfRangeException("The third dimension of the given array is unequal four (for the four color channels).", "m");
                 }
                 var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
                     ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
@@ -598,7 +604,7 @@ namespace de.mastersign.minimods.bitmaptools
             var cols = bmp.Width;
             if (rows != m.GetLength(0) || cols != m.GetLength(1))
             {
-                throw new ArgumentException("The given bitmap and array do not match in size.");
+                throw new ArgumentOutOfRangeException("The given bitmap and array do not match in size.");
             }
             var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
                 ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
@@ -631,11 +637,13 @@ namespace de.mastersign.minimods.bitmaptools
             if (r == null) throw new ArgumentNullException("r");
             if (g == null) throw new ArgumentNullException("g");
             if (b == null) throw new ArgumentNullException("b");
-            var rows = Math.Min(r.GetLength(0), Math.Min(g.GetLength(0), b.GetLength(0)));
-            var cols = Math.Min(r.GetLength(1), Math.Min(g.GetLength(1), b.GetLength(1)));
-            if (rows != bmp.Height || cols != bmp.Width)
+            var rows = r.GetLength(0);
+            var cols = r.GetLength(1);
+            if (rows != bmp.Height || cols != bmp.Width ||
+                rows != g.GetLength(0) || cols != g.GetLength(1) ||
+                rows != b.GetLength(0) || cols != b.GetLength(1))
             {
-                throw new ArgumentException("The given bitmap and arrays do not match in size.");
+                throw new ArgumentOutOfRangeException("The given bitmap and arrays do not match in size.");
             }
             var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
                 ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
@@ -673,11 +681,14 @@ namespace de.mastersign.minimods.bitmaptools
             if (r == null) throw new ArgumentNullException("r");
             if (g == null) throw new ArgumentNullException("g");
             if (b == null) throw new ArgumentNullException("b");
-            var rows = Math.Min(a.GetLength(0), Math.Min(r.GetLength(0), Math.Min(g.GetLength(0), b.GetLength(0))));
-            var cols = Math.Min(a.GetLength(1), Math.Min(r.GetLength(1), Math.Min(g.GetLength(1), b.GetLength(1))));
-            if (rows != bmp.Height || cols != bmp.Width)
+            var rows = a.GetLength(0);
+            var cols = a.GetLength(1);
+            if (rows != bmp.Height || cols != bmp.Width ||
+                rows != r.GetLength(0) || cols != r.GetLength(1) ||
+                rows != g.GetLength(0) || cols != g.GetLength(1) ||
+                rows != b.GetLength(0) || cols != b.GetLength(1))
             {
-                throw new ArgumentException("The given bitmap and arrays do not match in size.");
+                throw new ArgumentOutOfRangeException("The given bitmap and arrays do not match in size.");
             }
             var bmpData = bmp.LockBits(new Rectangle(0, 0, cols, rows),
                 ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
