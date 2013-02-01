@@ -314,20 +314,22 @@ namespace de.mastersign.minimods.test.bitmaptools
         {
             var rgb = new byte[,,]
                 {
-                    {{11, 21, 31}, {12, 22, 32},{13, 23, 33}},
-                    {{14, 24, 34}, {52, 52, 52},{16, 26, 36}},
+                    {{11, 21, 31}, {12, 22, 32},{13, 23, 33}, {14, 24, 34}},
+                    {{15, 25, 35}, {16, 26, 36},{17, 27, 37}, {18, 28, 38}},
                 };
+            var h = rgb.GetLength(0);
+            var w = rgb.GetLength(1);
 
             using (var o = BitmapTools.CreateFromArray(rgb))
             {
                 Assert.IsNotNull(o);
                 Assert.AreEqual(PixelFormat.Format24bppRgb, o.PixelFormat);
-                Assert.AreEqual(3, o.Width);
-                Assert.AreEqual(2, o.Height);
+                Assert.AreEqual(w, o.Width);
+                Assert.AreEqual(h, o.Height);
 
-                for (var y = 0; y < 2; y++)
+                for (var y = 0; y < h; y++)
                 {
-                    for (var x = 0; x < 3; x++)
+                    for (var x = 0; x < w; x++)
                     {
                         var c = o.GetPixel(x, y);
                         Assert.AreEqual(255, c.A);
@@ -386,6 +388,19 @@ namespace de.mastersign.minimods.test.bitmaptools
         [Test]
         public void ToGrayScaleArrayTest()
         {
+            Assert.Throws<ArgumentNullException>(
+                () => BitmapExtension.ToGrayScaleArray(null));
+
+            using (var rgb = BitmapTools.CreateRgbBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(() => rgb.ToGrayScaleArray());
+            }
+
+            using (var argb = BitmapTools.CreateArgbBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(() => argb.ToGrayScaleArray());
+            }
+
             var v = new byte[,]
                 {
                     { 1, 2, 3 }, 
@@ -394,15 +409,6 @@ namespace de.mastersign.minimods.test.bitmaptools
             var w = v.GetLength(1);
             var h = v.GetLength(0);
             var o = BitmapTools.CreateFromArray(v);
-
-            Assert.Throws<ArgumentNullException>(
-                () => BitmapExtension.ToGrayScaleArray(null));
-
-            using (var rgb = BitmapTools.CreateRgbBitmap(1, 1))
-            {
-                Assert.Throws<ArgumentException>(
-                    () => rgb.ToGrayScaleArray());
-            }
 
             var v2 = o.ToGrayScaleArray();
             Assert.NotNull(v2);
@@ -417,6 +423,541 @@ namespace de.mastersign.minimods.test.bitmaptools
             }
 
             o.Dispose();
+        }
+
+        [Test]
+        public void ToRgbArrayTest()
+        {
+            Assert.Throws<ArgumentNullException>(
+                () => BitmapExtension.ToRgbArray(null));
+
+            using (var gray = BitmapTools.CreateGrayScaleBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(() => gray.ToRgbArray());
+            }
+
+            using (var argb = BitmapTools.CreateArgbBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(() => argb.ToRgbArray());
+            }
+
+            var rgb = new byte[,,]
+                {
+                    {{11, 21, 31}, {12, 22, 32},{13, 23, 33}, {14, 24, 34}},
+                    {{15, 25, 35}, {16, 26, 36},{17, 27, 37}, {18, 28, 38}},
+                };
+            var w = rgb.GetLength(1);
+            var h = rgb.GetLength(0);
+            var o = BitmapTools.CreateFromArray(rgb);
+
+            var rgb2 = o.ToRgbArray();
+            Assert.NotNull(rgb2);
+            Assert.AreEqual(rgb2.GetLength(0), rgb.GetLength(0));
+            Assert.AreEqual(rgb2.GetLength(1), rgb.GetLength(1));
+            for (var y = 0; y < h; y++)
+            {
+                for (var x = 0; x < w; x++)
+                {
+                    Assert.AreEqual(rgb[y, x, 0], rgb2[y, x, 0]);
+                    Assert.AreEqual(rgb[y, x, 1], rgb2[y, x, 1]);
+                    Assert.AreEqual(rgb[y, x, 2], rgb2[y, x, 2]);
+                }
+            }
+
+            o.Dispose();
+        }
+
+        [Test]
+        public void ToArgbArrayTest()
+        {
+            Assert.Throws<ArgumentNullException>(
+                () => BitmapExtension.ToArgbArray(null));
+
+            using (var gray = BitmapTools.CreateGrayScaleBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(() => gray.ToArgbArray());
+            }
+
+            using (var rgb = BitmapTools.CreateRgbBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(() => rgb.ToArgbArray());
+            }
+
+            var argb = new byte[,,]
+                {
+                    {{01, 11, 21, 31}, {02, 12, 22, 32},{03, 13, 23, 33}},
+                    {{04, 14, 24, 34}, {05, 52, 52, 52},{06, 16, 26, 36}},
+                };
+            var w = argb.GetLength(1);
+            var h = argb.GetLength(0);
+            var o = BitmapTools.CreateFromArray(argb);
+
+            var argb2 = o.ToArgbArray();
+            Assert.NotNull(argb2);
+            Assert.AreEqual(argb2.GetLength(0), argb.GetLength(0));
+            Assert.AreEqual(argb2.GetLength(1), argb.GetLength(1));
+            for (var y = 0; y < h; y++)
+            {
+                for (var x = 0; x < w; x++)
+                {
+                    Assert.AreEqual(argb[y, x, 0], argb2[y, x, 0]);
+                    Assert.AreEqual(argb[y, x, 1], argb2[y, x, 1]);
+                    Assert.AreEqual(argb[y, x, 2], argb2[y, x, 2]);
+                    Assert.AreEqual(argb[y, x, 3], argb2[y, x, 3]);
+                }
+            }
+
+            o.Dispose();
+        }
+
+        [Test]
+        public void CopyToArrayGrayScaleTest()
+        {
+            var v = new byte[,]
+                {
+                    { 1, 2, 3 }, 
+                    { 4, 5, 6 }
+                };
+            var w = v.GetLength(1);
+            var h = v.GetLength(0);
+            var o = BitmapTools.CreateFromArray(v);
+
+            Assert.Throws<ArgumentNullException>(
+                () => BitmapExtension.CopyToArray(null, new byte[1, 1]));
+
+            using (var rgb = BitmapTools.CreateRgbBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(
+                    () => rgb.CopyToArray(new byte[1, 1]));
+            }
+
+            using (var argb = BitmapTools.CreateArgbBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(
+                    () => argb.CopyToArray(new byte[1, 1]));
+            }
+
+            Assert.Throws<ArgumentNullException>(() => o.CopyToArray((byte[,])null));
+
+            Assert.Throws<ArgumentException>(() => o.CopyToArray(new byte[0, 0]));
+
+            Assert.Throws<ArgumentException>(() => o.CopyToArray(new byte[h - 1, w - 1]));
+
+            Assert.Throws<ArgumentException>(() => o.CopyToArray(new byte[h + 1, w + 1]));
+
+            var v2 = new byte[h, w];
+            o.CopyToArray(v2);
+            for (var y = 0; y < h; y++)
+            {
+                for (var x = 0; x < w; x++)
+                {
+                    Assert.AreEqual(v[y, x], v2[y, x]);
+                }
+            }
+
+            o.Dispose();
+        }
+
+        [Test]
+        public void CopyToArrayRgbTest()
+        {
+            var r = new byte[,]
+                {
+                    { 11, 12, 13 }, 
+                    { 14, 15, 16 }
+                };
+            var g = new byte[,]
+                {
+                    { 21, 22, 23 }, 
+                    { 24, 25, 26 }
+                };
+            var b = new byte[,]
+                {
+                    { 31, 32, 33 }, 
+                    { 34, 35, 36 }
+                };
+            var w = r.GetLength(1);
+            var h = r.GetLength(0);
+            var o = BitmapTools.CreateFromArray(r, g, b);
+
+            Assert.Throws<ArgumentNullException>(
+                () => BitmapExtension.CopyToArray(null, new byte[1, 1], new byte[1, 1], new byte[1, 1]));
+
+            using (var gray = BitmapTools.CreateGrayScaleBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(
+                    () => gray.CopyToArray(new byte[1, 1], new byte[1, 1], new byte[1, 1]));
+            }
+
+            using (var argb = BitmapTools.CreateArgbBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(
+                    () => argb.CopyToArray(new byte[1, 1], new byte[1, 1], new byte[1, 1]));
+            }
+
+            Assert.Throws<ArgumentNullException>(() => o.CopyToArray(null, g, b));
+            Assert.Throws<ArgumentNullException>(() => o.CopyToArray(r, null, b));
+            Assert.Throws<ArgumentNullException>(() => o.CopyToArray(r, g, null));
+            Assert.Throws<ArgumentException>(() => o.CopyToArray(new byte[0, 0], g, b));
+            Assert.Throws<ArgumentException>(() => o.CopyToArray(new byte[h - 1, w - 1], g, b));
+            Assert.Throws<ArgumentException>(() => o.CopyToArray(new byte[h + 1, w + 1], g, b));
+
+            var r2 = new byte[h, w];
+            var g2 = new byte[h, w];
+            var b2 = new byte[h, w];
+            o.CopyToArray(r2, g2, b2);
+            for (var y = 0; y < h; y++)
+            {
+                for (var x = 0; x < w; x++)
+                {
+                    Assert.AreEqual(r[y, x], r2[y, x]);
+                    Assert.AreEqual(g[y, x], g2[y, x]);
+                    Assert.AreEqual(b[y, x], b2[y, x]);
+                }
+            }
+
+            o.Dispose();
+        }
+
+        [Test]
+        public void CopyToArrayArgbTest()
+        {
+            var a = new byte[,]
+                {
+                    { 01, 02, 03 }, 
+                    { 04, 05, 06 }
+                };
+            var r = new byte[,]
+                {
+                    { 11, 12, 13 }, 
+                    { 14, 15, 16 }
+                };
+            var g = new byte[,]
+                {
+                    { 21, 22, 23 }, 
+                    { 24, 25, 26 }
+                };
+            var b = new byte[,]
+                {
+                    { 31, 32, 33 }, 
+                    { 34, 35, 36 }
+                };
+            var w = r.GetLength(1);
+            var h = r.GetLength(0);
+            var o = BitmapTools.CreateFromArray(a, r, g, b);
+
+            Assert.Throws<ArgumentNullException>(
+                () => BitmapExtension.CopyToArray(null, new byte[1, 1], new byte[1, 1], new byte[1, 1], new byte[1, 1]));
+
+            using (var gray = BitmapTools.CreateGrayScaleBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(
+                    () => gray.CopyToArray(new byte[1, 1], new byte[1, 1], new byte[1, 1], new byte[1, 1]));
+            }
+
+            using (var rgb = BitmapTools.CreateRgbBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentException>(
+                    () => rgb.CopyToArray(new byte[1, 1], new byte[1, 1], new byte[1, 1], new byte[1, 1]));
+            }
+
+            Assert.Throws<ArgumentNullException>(() => o.CopyToArray(null, r, g, b));
+            Assert.Throws<ArgumentNullException>(() => o.CopyToArray(a, null, g, b));
+            Assert.Throws<ArgumentNullException>(() => o.CopyToArray(a, r, null, b));
+            Assert.Throws<ArgumentNullException>(() => o.CopyToArray(a, r, g, null));
+            Assert.Throws<ArgumentException>(() => o.CopyToArray(new byte[0, 0], r, g, b));
+            Assert.Throws<ArgumentException>(() => o.CopyToArray(new byte[h - 1, w - 1], r, g, b));
+            Assert.Throws<ArgumentException>(() => o.CopyToArray(new byte[h + 1, w + 1], r, g, b));
+
+            var a2 = new byte[h, w];
+            var r2 = new byte[h, w];
+            var g2 = new byte[h, w];
+            var b2 = new byte[h, w];
+            o.CopyToArray(a2, r2, g2, b2);
+            for (var y = 0; y < h; y++)
+            {
+                for (var x = 0; x < w; x++)
+                {
+                    Assert.AreEqual(a[y, x], a2[y, x]);
+                    Assert.AreEqual(r[y, x], r2[y, x]);
+                    Assert.AreEqual(g[y, x], g2[y, x]);
+                    Assert.AreEqual(b[y, x], b2[y, x]);
+                }
+            }
+
+            o.Dispose();
+        }
+
+        [Test]
+        public void CopyToArrayMultiPreconditionTest()
+        {
+            using (var gray = BitmapTools.CreateGrayScaleBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentNullException>(() => gray.CopyToArray((byte[, ,])null));
+                Assert.Throws<ArgumentOutOfRangeException>(() => gray.CopyToArray(new byte[0, 1, 1]));
+                Assert.Throws<ArgumentOutOfRangeException>(() => gray.CopyToArray(new byte[1, 0, 1]));
+                Assert.Throws<ArgumentOutOfRangeException>(() => gray.CopyToArray(new byte[1, 1, 0]));
+                Assert.Throws<ArgumentOutOfRangeException>(() => gray.CopyToArray(new byte[1, 1, 2]));
+            }
+            using (var rgb = BitmapTools.CreateRgbBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentNullException>(() => rgb.CopyToArray((byte[, ,])null));
+                Assert.Throws<ArgumentOutOfRangeException>(() => rgb.CopyToArray(new byte[0, 1, 3]));
+                Assert.Throws<ArgumentOutOfRangeException>(() => rgb.CopyToArray(new byte[1, 0, 3]));
+                Assert.Throws<ArgumentOutOfRangeException>(() => rgb.CopyToArray(new byte[1, 1, 2]));
+                Assert.Throws<ArgumentOutOfRangeException>(() => rgb.CopyToArray(new byte[1, 1, 4]));
+            }
+            using (var argb = BitmapTools.CreateArgbBitmap(1, 1))
+            {
+                Assert.Throws<ArgumentNullException>(() => argb.CopyToArray((byte[, ,])null));
+                Assert.Throws<ArgumentOutOfRangeException>(() => argb.CopyToArray(new byte[0, 1, 4]));
+                Assert.Throws<ArgumentOutOfRangeException>(() => argb.CopyToArray(new byte[1, 0, 4]));
+                Assert.Throws<ArgumentOutOfRangeException>(() => argb.CopyToArray(new byte[1, 1, 3]));
+                Assert.Throws<ArgumentOutOfRangeException>(() => argb.CopyToArray(new byte[1, 1, 5]));
+            }
+        }
+
+        [Test]
+        public void CopyToArrayMultiGrayScaleTest()
+        {
+            var gray = new byte[,,]
+                {
+                    {{11}, {12},{13}},
+                    {{14}, {52},{16}},
+                };
+            var w = gray.GetLength(1);
+            var h = gray.GetLength(0);
+
+            using (var o = BitmapTools.CreateFromArray(gray))
+            {
+                var gray2 = new byte[h, w, 1];
+                o.CopyToArray(gray2);
+                for (var y = 0; y < h; y++)
+                {
+                    for (var x = 0; x < w; x++)
+                    {
+                        Assert.AreEqual(gray[y, x, 0], gray2[y, x, 0]);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void CopyToArrayMultiRgbTest()
+        {
+            var rgb = new byte[,,]
+                {
+                    {{11, 21, 31}, {12, 22, 32}, {13, 23, 33}, {14, 24, 34}},
+                    {{15, 25, 35}, {16, 26, 36}, {17, 27, 37}, {18, 28, 38}},
+                };
+            var w = rgb.GetLength(1);
+            var h = rgb.GetLength(0);
+
+            using (var o = BitmapTools.CreateFromArray(rgb))
+            {
+                var rgb2 = new byte[h, w, 3];
+                o.CopyToArray(rgb2);
+                for (var y = 0; y < h; y++)
+                {
+                    for (var x = 0; x < w; x++)
+                    {
+                        Assert.AreEqual(rgb[y, x, 0], rgb2[y, x, 0]);
+                        Assert.AreEqual(rgb[y, x, 1], rgb2[y, x, 1]);
+                        Assert.AreEqual(rgb[y, x, 2], rgb2[y, x, 2]);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void CopyToArrayMultiArgbTest()
+        {
+            var argb = new byte[,,]
+                {
+                    {{01, 11, 21, 31}, {02, 12, 22, 32}, {03, 13, 23, 33}},
+                    {{04, 14, 24, 34}, {05, 52, 52, 52}, {06, 16, 26, 36}},
+                };
+            var w = argb.GetLength(1);
+            var h = argb.GetLength(0);
+
+            using (var o = BitmapTools.CreateFromArray(argb))
+            {
+                var argb2 = new byte[h, w, 4];
+                o.CopyToArray(argb2);
+                for (var y = 0; y < h; y++)
+                {
+                    for (var x = 0; x < w; x++)
+                    {
+                        Assert.AreEqual(argb[y, x, 0], argb2[y, x, 0]);
+                        Assert.AreEqual(argb[y, x, 1], argb2[y, x, 1]);
+                        Assert.AreEqual(argb[y, x, 2], argb2[y, x, 2]);
+                        Assert.AreEqual(argb[y, x, 3], argb2[y, x, 3]);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void CopyFromArrayGrayScaleTest()
+        {
+            var v = new byte[,]
+                {
+                    { 1, 2, 3 }, 
+                    { 4, 5, 6 }
+                };
+            var w = v.GetLength(1);
+            var h = v.GetLength(0);
+            using (var o = BitmapTools.CreateGrayScaleBitmap(w, h))
+            {
+                Assert.Throws<ArgumentNullException>(() => BitmapExtension.CopyFromArray(null, v));
+                Assert.Throws<ArgumentNullException>(() => o.CopyFromArray((byte[,])null));
+
+                Assert.Throws<ArgumentOutOfRangeException>(() => o.CopyFromArray(new byte[0, 0]));
+                Assert.Throws<ArgumentOutOfRangeException>(() => o.CopyFromArray(new byte[h, 0]));
+                Assert.Throws<ArgumentOutOfRangeException>(() => o.CopyFromArray(new byte[0, w]));
+
+                o.CopyFromArray(v);
+
+                for (var y = 0; y < h; y++)
+                {
+                    for (var x = 0; x < w; x++)
+                    {
+                        var c = o.GetPixel(x, y);
+                        Assert.AreEqual(255, c.A);
+                        Assert.AreEqual(v[y, x], c.R);
+                        Assert.AreEqual(v[y, x], c.G);
+                        Assert.AreEqual(v[y, x], c.B);
+                    }
+                }
+            }
+
+            using (var o = BitmapTools.CreateRgbBitmap(w, h))
+            {
+                Assert.Throws<ArgumentException>(() => o.CopyFromArray(v));
+            }
+            using (var o = BitmapTools.CreateArgbBitmap(w, h))
+            {
+                Assert.Throws<ArgumentException>(() => o.CopyFromArray(v));
+            }
+        }
+
+        [Test]
+        public void CopyFromArrayRgbTest()
+        {
+            var r = new byte[,]
+                {
+                    { 11, 12, 13 }, 
+                    { 14, 15, 16 }
+                };
+            var g = new byte[,]
+                {
+                    { 21, 22, 23 }, 
+                    { 24, 25, 26 }
+                };
+            var b = new byte[,]
+                {
+                    { 31, 32, 33 }, 
+                    { 34, 35, 36 }
+                };
+            var w = r.GetLength(1);
+            var h = r.GetLength(0);
+            using (var o = BitmapTools.CreateRgbBitmap(w, h))
+            {
+                Assert.Throws<ArgumentNullException>(() => BitmapExtension.CopyFromArray(null, r, g, b));
+                Assert.Throws<ArgumentNullException>(() => o.CopyFromArray(null, g, b));
+                Assert.Throws<ArgumentNullException>(() => o.CopyFromArray(r, null, b));
+                Assert.Throws<ArgumentNullException>(() => o.CopyFromArray(r, g, null));
+
+                Assert.Throws<ArgumentOutOfRangeException>(() => o.CopyFromArray(new byte[0, 0], g, b));
+                Assert.Throws<ArgumentOutOfRangeException>(() => o.CopyFromArray(new byte[h, 0], g, b));
+                Assert.Throws<ArgumentOutOfRangeException>(() => o.CopyFromArray(new byte[0, w], g, b));
+
+                o.CopyFromArray(r, g, b);
+
+                for (var y = 0; y < h; y++)
+                {
+                    for (var x = 0; x < w; x++)
+                    {
+                        var c = o.GetPixel(x, y);
+                        Assert.AreEqual(255, c.A);
+                        Assert.AreEqual(r[y, x], c.R);
+                        Assert.AreEqual(g[y, x], c.G);
+                        Assert.AreEqual(b[y, x], c.B);
+                    }
+                }
+            }
+
+            using (var o = BitmapTools.CreateGrayScaleBitmap(w, h))
+            {
+                Assert.Throws<ArgumentException>(() => o.CopyFromArray(r, g, b));
+            }
+            using (var o = BitmapTools.CreateArgbBitmap(w, h))
+            {
+                Assert.Throws<ArgumentException>(() => o.CopyFromArray(r, g, b));
+            }
+
+        }
+
+        [Test]
+        public void CopyFromArrayArgbTest()
+        {
+            var a = new byte[,]
+                {
+                    { 01, 02, 03 }, 
+                    { 04, 05, 06 }
+                };
+            var r = new byte[,]
+                {
+                    { 11, 12, 13 }, 
+                    { 14, 15, 16 }
+                };
+            var g = new byte[,]
+                {
+                    { 21, 22, 23 }, 
+                    { 24, 25, 26 }
+                };
+            var b = new byte[,]
+                {
+                    { 31, 32, 33 }, 
+                    { 34, 35, 36 }
+                };
+            var w = a.GetLength(1);
+            var h = a.GetLength(0);
+            using (var o = BitmapTools.CreateArgbBitmap(w, h))
+            {
+                Assert.Throws<ArgumentNullException>(() => BitmapExtension.CopyFromArray(null, a, r, g, b));
+                Assert.Throws<ArgumentNullException>(() => o.CopyFromArray(null, r, g, b));
+                Assert.Throws<ArgumentNullException>(() => o.CopyFromArray(a, null, g, b));
+                Assert.Throws<ArgumentNullException>(() => o.CopyFromArray(a, r, null, b));
+                Assert.Throws<ArgumentNullException>(() => o.CopyFromArray(a, r, g, null));
+
+                Assert.Throws<ArgumentOutOfRangeException>(() => o.CopyFromArray(new byte[0, 0], r, g, b));
+                Assert.Throws<ArgumentOutOfRangeException>(() => o.CopyFromArray(new byte[h, 0], r, g, b));
+                Assert.Throws<ArgumentOutOfRangeException>(() => o.CopyFromArray(new byte[0, w], r, g, b));
+
+                o.CopyFromArray(a, r, g, b);
+
+                for (var y = 0; y < h; y++)
+                {
+                    for (var x = 0; x < w; x++)
+                    {
+                        var c = o.GetPixel(x, y);
+                        Assert.AreEqual(a[y, x], c.A);
+                        Assert.AreEqual(r[y, x], c.R);
+                        Assert.AreEqual(g[y, x], c.G);
+                        Assert.AreEqual(b[y, x], c.B);
+                    }
+                }
+            }
+
+            using (var o = BitmapTools.CreateGrayScaleBitmap(w, h))
+            {
+                Assert.Throws<ArgumentException>(() => o.CopyFromArray(a, r, g, b));
+            }
+            using (var o = BitmapTools.CreateRgbBitmap(w, h))
+            {
+                Assert.Throws<ArgumentException>(() => o.CopyFromArray(a, r, g, b));
+            }
         }
     }
 }
