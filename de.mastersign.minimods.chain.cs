@@ -1,19 +1,17 @@
-﻿/*
- * MiniMod "Chain"
- * 
- * Author: Tobias Kiertscher <dev@mastersign.de>
- * 
- * Description:
- *   Chain is a simple functional and immutable data type
- *   for chained lists. It is enumerable and generic, 
- *   and supports typical functional programming patterns.
- * 
- * Version: 1.0
- * Last Change: 29.01.2013
- * 
- * URL: https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.chain.cs
- * 
- */
+﻿#region MiniMod
+// <MiniMod>
+//   <Name>Chain</Name>
+//   <Author>Tobias Kiertscher <dev@mastersign.de></Author>
+//   <LastChanged>2013-01-29</LastChanged>
+//   <Version>1.0.</Version>
+//   <Url>https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.chain.cs</Url>
+//   <Description>
+//     Chain is a simple functional and immutable data type
+//     for chained lists. It is enumerable and generic, 
+//     and supports typical functional programming patterns.
+//   </Description>
+// </MiniMod>
+#endregion
 
 using System;
 using System.Collections;
