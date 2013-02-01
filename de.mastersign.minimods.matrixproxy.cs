@@ -20,39 +20,117 @@ using System.Collections.Generic;
 
 namespace de.mastersign.minimods.matrixproxy
 {
+    /// <summary>
+    /// The interface for a matrix proxy allowing unified access to the matrix elements.
+    /// </summary>
+    /// <typeparam name="T">The element type of the matrix.</typeparam>
     public interface IMatrixProxy<T> : IEnumerable<T>
     {
+        /// <summary>
+        /// Returns the roaw data object containing the elements.
+        /// </summary>
         object RawData { get; }
 
+        /// <summary>
+        /// Returns the number of columns or the width respectivly of the matrix.
+        /// </summary>
         int Columns { get; }
 
+        /// <summary>
+        /// Returns the number of rows or the height respectivly of the matrix.
+        /// </summary>
         int Rows { get; }
 
+        /// <summary>
+        /// Gets or sets the value of a cell.
+        /// </summary>
+        /// <param name="row">The row index of the cell.</param>
+        /// <param name="column">The column index of the cell.</param>
+        /// <returns></returns>
         T this[int row, int column] { get; set; }
 
+        /// <summary>
+        /// Applies a transition function to every cell in the matrix.
+        /// </summary>
+        /// <param name="f"></param>
         void Apply(Func<T, T> f);
 
+        ///// <summary>
+        ///// Applies a transition function regarding the cell position to every cell in the matrix.
+        ///// </summary>
+        ///// <param name="f"></param>
         //void Apply(Func<int, int, T, T> f);
 
+        /// <summary>
+        /// Sets the value of every cell in the matrix to the given value.
+        /// </summary>
+        /// <param name="value">The value to fill with.</param>
         void Fill(T value);
 
+        /// <summary>
+        /// Sets the value of every cell in the matrix to a value returned by the given function.
+        /// The function <paramref name="f"/> is called for every cell once.
+        /// </summary>
+        /// <param name="f">A function, producing the initialization values.</param>
         void Fill(Func<T> f);
 
+        ///// <summary>
+        ///// Sets the value of every cell in the matrix to a value returned by the given function.
+        ///// The function <see cref="f"/> is called for every cell once, equipted with the position of the cell.
+        ///// </summary>
+        ///// <param name="f">A function, producing the initialization values.</param>
         //void Fill(Func<int, int, T> f);
 
+        /// <summary>
+        /// Calls for each cell the delegate <paramref name="action"/>,
+        /// consigning the value of the cell.
+        /// </summary>
+        /// <param name="action">The action.</param>
         void ForEach(Action<T> action);
 
+        ///// <summary>
+        ///// Calls for each cell the delegate <paramref name="action"/>,
+        ///// consigning the value and the position of the cell.
+        ///// </summary>
+        ///// <param name="action">The action.</param>
         //void ForEach(Action<int, int, T> action);
     }
 
+    /// <summary>
+    /// The order of a matrix.
+    /// </summary>
     public enum MatrixOrder
     {
+        /// <summary>
+        /// The matrix is a collection of rows, which are collections of cells.
+        /// The first index specifies the row, the second the column.
+        /// </summary>
         RowColumn,
+
+        /// <summary>
+        /// The matrix is a collection of columns, which are collections of cells.
+        /// The first index specifies the column, the second the row.
+        /// </summary>
         ColumnRow,
     }
 
+    /// <summary>
+    /// Factory class for matrix proxy instances.
+    /// </summary>
     public static class MatrixProxy
     {
+        /// <summary>
+        /// Creates a matrix proxy for a two-dimensional array.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="data">The array containing the matrix values.</param>
+        /// <param name="matrixOrder">The logical order of the array. 
+        /// Default value is <see cref="MatrixOrder.RowColumn"/>.</param>
+        /// <param name="reverseRowIndex">If <c>true</c>, the order of the row indices is reversed. 
+        /// Default value is <c>false</c>.</param>
+        /// <param name="reverseColumnIndex">If <c>true</c>, the order of the column indices is reversed. 
+        /// Default value is <c>false</c>.</param>
+        /// <returns>The generated proxy.</returns>
         public static IMatrixProxy<T> Create<T>(T[,] data,
             MatrixOrder matrixOrder = MatrixOrder.RowColumn,
             bool reverseRowIndex = false,
@@ -75,6 +153,18 @@ namespace de.mastersign.minimods.matrixproxy
                                 : new MultiDimColumnRowReverseRowsAndColumns<T>(data)));
         }
 
+        /// <summary>
+        /// Creates a matrix proxy for a jagged array.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="data">The array containing the matrix values.</param>
+        /// <param name="matrixOrder">The logical order of the array. 
+        /// Default value is <see cref="MatrixOrder.RowColumn"/>.</param>
+        /// <param name="reverseRowIndex">If <c>true</c>, the order of the row indices is reversed. 
+        /// Default value is <c>false</c>.</param>
+        /// <param name="reverseColumnIndex">If <c>true</c>, the order of the column indices is reversed. 
+        /// Default value is <c>false</c>.</param>
+        /// <returns>The generated proxy.</returns>
         public static IMatrixProxy<T> Create<T>(T[][] data,
             MatrixOrder matrixOrder = MatrixOrder.RowColumn,
             bool reverseRowIndex = false,
@@ -97,6 +187,21 @@ namespace de.mastersign.minimods.matrixproxy
                                 : new JaggedArrayColumnRowReverseRowsAndColumns<T>(data)));
         }
 
+        /// <summary>
+        /// Creates a matrix proxy for a sequential array.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="data">The array containing the matrix values.</param>
+        /// <param name="offset">The offset for the first cell in the array.</param>
+        /// <param name="rows">The number of rows or the height respectively.</param>
+        /// <param name="columns">The number of columns or the width respectively.</param>
+        /// <param name="matrixOrder">The logical order of the array. 
+        /// Default value is <see cref="MatrixOrder.RowColumn"/>.</param>
+        /// <param name="reverseRowIndex">If <c>true</c>, the order of the row indices is reversed. 
+        /// Default value is <c>false</c>.</param>
+        /// <param name="reverseColumnIndex">If <c>true</c>, the order of the column indices is reversed. 
+        /// Default value is <c>false</c>.</param>
+        /// <returns>The generated proxy.</returns>
         public static IMatrixProxy<T> Create<T>(T[] data,
             int offset, int rows, int columns,
             MatrixOrder matrixOrder = MatrixOrder.RowColumn,
@@ -119,6 +224,8 @@ namespace de.mastersign.minimods.matrixproxy
                                 ? (IMatrixProxy<T>)new LinearArrayColumnRowReverseRows<T>(data, offset, rows, columns)
                                 : new LinearArrayColumnRowReverseRowsAndColumns<T>(data, offset, rows, columns)));
         }
+
+        // TODO matrix proxy for IntPtr with Marshal.Read..., Marshal.Write...
 
         private abstract class BasicMatrixProxy
         {
