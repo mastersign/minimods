@@ -1,18 +1,16 @@
-﻿/*
- * MiniMod "Bitmap Tools"
- * 
- * Author: Tobias Kiertscher <dev@mastersign.de>
- * 
- * Description:
- *   Bitmap tools provides conversion and access methods for
- *   reading and writing data in System.Drawing.Bitmap objects.
- * 
- * Version: 1.0
- * Last Change: 29.01.2013
- * 
- * URL: https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.bitmaptools.cs
- * 
- */
+﻿#region MiniMod
+// <MiniMod>
+//   <Name>Bitmap Tools</Name>
+//   <Author>Tobias Kiertscher <dev@mastersign.de></Author>
+//   <LastChanged>29.01.2013</LastChanged>
+//   <Version>1.0</Version>
+//   <Url>https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.bitmaptools.cs</Url>
+//   <Description>
+//     Bitmap tools provides conversion and access methods for
+ //    reading and writing data in System.Drawing.Bitmap objects
+//   </Description>
+// </MiniMod>
+#endregion
 
 using System;
 using System.Collections.Generic;
