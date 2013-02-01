@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Mastersign.Minimods.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Mastersign.Minimods.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
@@ -50,6 +52,7 @@
     <Compile Include="de.mastersign.minimods.bitmaptools.cs" />
     <Compile Include="de.mastersign.minimods.chain.cs" />
     <Compile Include="de.mastersign.minimods.matrixproxy.cs" />
+    <Compile Include="de.mastersign.minimods.test.bitmaptools.cs" />
     <Compile Include="de.mastersign.minimods.test.chain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

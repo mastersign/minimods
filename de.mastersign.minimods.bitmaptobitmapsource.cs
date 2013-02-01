@@ -1,17 +1,15 @@
-﻿/*
- * MiniMod "Bitmap to BitmapSource"
- * 
- * Author: Micheal Eakins
- * 
- * Description:
- *   Conversion from System.Drawing.Bitmap to System.Windows.Media.Imaging.BitmapSource.
- * 
- * Version: 1.0
- * Last Change: 29.01.2013
- * 
- * URL: https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.bitmaptobitmapsource.cs
- * 
- */
+﻿#region MiniMod
+// <MiniMod>
+//   <Name>Bitmap to BitmapSource</Name>
+//   <Author>Micheal Eakins</Author>
+//   <LastChanged>2013-01-29</LastChanged>
+//   <Version>1.0</Version>
+//   <Url>https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.bitmaptobitmapsource.cs</Url>
+//   <Description>
+//     Conversion from System.Drawing.Bitmap to System.Windows.Media.Imaging.BitmapSource.
+//   </Description>
+// </MiniMod>
+#endregion
 
 using System;
 using System.Collections.Generic;
