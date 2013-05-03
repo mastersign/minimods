@@ -1,7 +1,7 @@
 ﻿#region MiniMod
 // <MiniMod>
 //   <Name>Matrix Proxy</Name>
-//   <Author>Tobias Kiertscher</Author>
+//   <Author>Tobias Kiertscher &lt;dev@mastersign.de&gt;</Author>
 //   <LastChanged>2012-09-07</LastChanged>
 //   <Version>1.0.0.0</Version>
 //   <Url>https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.matrixproxy.cs</Url>

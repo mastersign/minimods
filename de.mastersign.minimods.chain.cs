@@ -1,7 +1,7 @@
 ﻿#region MiniMod
 // <MiniMod>
 //   <Name>Chain</Name>
-//   <Author>Tobias Kiertscher <dev@mastersign.de></Author>
+//   <Author>Tobias Kiertscher &lt;dev@mastersign.de&gt;</Author>
 //   <LastChanged>2013-01-29</LastChanged>
 //   <Version>1.0.</Version>
 //   <Url>https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.chain.cs</Url>
