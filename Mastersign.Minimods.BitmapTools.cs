@@ -2,12 +2,12 @@
 // <MiniMod>
 //   <Name>Bitmap Tools</Name>
 //   <Author>Tobias Kiertscher &lt;dev@mastersign.de&gt;</Author>
-//   <LastChanged>29.01.2013</LastChanged>
-//   <Version>1.0</Version>
-//   <Url>https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.bitmaptools.cs</Url>
+//   <LastChanged>2015-01-21</LastChanged>
+//   <Version>1.1.0</Version>
+//   <Url>https://gist.github.com/mastersign/68bc1c14d77b86e6a4ad/raw/Mastersign.Minimods.BitmapTools.cs</Url>
 //   <Description>
 //     Bitmap tools provides conversion and access methods for
- //    reading and writing data in System.Drawing.Bitmap objects
+//    reading and writing data in System.Drawing.Bitmap objects
 //   </Description>
 // </MiniMod>
 #endregion
@@ -20,7 +20,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace de.mastersign.minimods.bitmaptools
+namespace Mastersign.Minimods.BitmapTools
 {
     /// <summary>
     /// This class is a collection of static helper methods to create
@@ -1103,7 +1103,7 @@ namespace de.mastersign.minimods.bitmaptools
                     throw new ArgumentException("The pixel format of the given bitmap is not supported.", "bmp");
             }
         }
-        
+
         #endregion
 
         #region filter
@@ -1405,8 +1405,8 @@ namespace de.mastersign.minimods.bitmaptools
                         {
                             var ofs = x * 3;
                             var c = Color.FromArgb(
-                                Marshal.ReadByte(line, ofs + 2), 
-                                Marshal.ReadByte(line, ofs + 1), 
+                                Marshal.ReadByte(line, ofs + 2),
+                                Marshal.ReadByte(line, ofs + 1),
                                 Marshal.ReadByte(line, ofs + 0));
                             c = f(x, y, c);
                             Marshal.WriteByte(line, ofs + 0, c.B);

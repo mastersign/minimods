@@ -2,9 +2,9 @@
 // <MiniMod>
 //   <Name>Bitmap to BitmapSource</Name>
 //   <Author>Micheal Eakins</Author>
-//   <LastChanged>2013-01-29</LastChanged>
-//   <Version>1.0</Version>
-//   <Url>https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.bitmaptobitmapsource.cs</Url>
+//   <LastChanged>2015-01-21</LastChanged>
+//   <Version>1.1.0</Version>
+//   <Url>https://gist.github.com/mastersign/8d81d5be4f7b31e0cf9a/raw/Mastersign.Minimods.BitmapToBitmapSource.cs</Url>
 //   <Description>
 //     Conversion from System.Drawing.Bitmap to System.Windows.Media.Imaging.BitmapSource.
 //   </Description>
@@ -20,7 +20,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
-namespace de.mastersign.minimods.bitmaptobitmapsource
+namespace Mastersign.Minimods.BitmapToBitmapSource
 {
     /// <summary>
     /// <para>

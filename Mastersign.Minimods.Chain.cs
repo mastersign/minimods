@@ -2,9 +2,9 @@
 // <MiniMod>
 //   <Name>Chain</Name>
 //   <Author>Tobias Kiertscher &lt;dev@mastersign.de&gt;</Author>
-//   <LastChanged>2013-01-29</LastChanged>
-//   <Version>1.0.</Version>
-//   <Url>https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.chain.cs</Url>
+//   <LastChanged>2015-01-21</LastChanged>
+//   <Version>1.1.0</Version>
+//   <Url>https://gist.github.com/mastersign/48db629fd2375a41ab5d/raw/Mastersign.Minimods.Chain.cs</Url>
 //   <Description>
 //     Chain is a simple functional and immutable data type
 //     for chained lists. It is enumerable and generic, 
@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace de.mastersign.minimods.chain
+namespace Mastersign.Minimods.Chain
 {
     /// <summary>
     /// A simple functional immutable data structure for a chained list.

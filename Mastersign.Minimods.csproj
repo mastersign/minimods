@@ -7,10 +7,11 @@
     <ProjectGuid>{787081F6-CD3B-480E-A7C3-77E0E1E84ADD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>de.mastersign.minimods</RootNamespace>
+    <RootNamespace>Mastersign.Minimods</RootNamespace>
     <AssemblyName>Mastersign.Minimods</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Mastersign.Minimods.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +32,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Mastersign.Minimods.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
@@ -48,12 +51,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="de.mastersign.minimods.bitmaptobitmapsource.cs" />
-    <Compile Include="de.mastersign.minimods.bitmaptools.cs" />
-    <Compile Include="de.mastersign.minimods.chain.cs" />
-    <Compile Include="de.mastersign.minimods.matrixproxy.cs" />
-    <Compile Include="de.mastersign.minimods.test.bitmaptools.cs" />
-    <Compile Include="de.mastersign.minimods.test.chain.cs" />
+    <Compile Include="Mastersign.Minimods.BitmapToBitmapSource.cs" />
+    <Compile Include="Mastersign.Minimods.BitmapTools.cs" />
+    <Compile Include="Mastersign.Minimods.Chain.cs" />
+    <Compile Include="Mastersign.Minimods.MatrixProxy.cs" />
+    <Compile Include="Mastersign.Minimods.BitmapTools.Test.cs" />
+    <Compile Include="Mastersign.Minimods.Chain.Test.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

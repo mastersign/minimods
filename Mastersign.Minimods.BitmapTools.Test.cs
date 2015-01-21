@@ -5,11 +5,11 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using de.mastersign.minimods.bitmaptools;
+using Mastersign.Minimods.BitmapTools;
 
-namespace de.mastersign.minimods.test.bitmaptools
+namespace Mastersign.Minimods.BitmapTools.Test
 {
-    internal class BitmapToolsTest
+    public class BitmapToolsTest
     {
         [Test]
         public void CreateGrayScaleBitmapTest()
@@ -372,7 +372,7 @@ namespace de.mastersign.minimods.test.bitmaptools
         }
     }
 
-    internal class BitmapExtensionTest
+    public class BitmapExtensionTest
     {
         [Test]
         public void SetPaletteToGrayScaleTest()

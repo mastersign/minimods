@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using de.mastersign.minimods.chain;
+using Mastersign.Minimods.Chain;
 
-namespace de.mastersign.minimods.test.chain
+namespace Mastersign.Minimods.Chain.Test
 {
-    internal class ChainTest
+    public class ChainTest
     {
         [Test, Category("Base")]
         public void IsEmptyTest()
@@ -209,7 +209,7 @@ namespace de.mastersign.minimods.test.chain
         }
     }
 
-    internal class ChainExtensionTest
+    public class ChainExtensionTest
     {
         [Test, Category("Algorithm")]
         public void ToChainReverseEmptyTest()
@@ -229,12 +229,12 @@ namespace de.mastersign.minimods.test.chain
             Array.Reverse(v1);
             Assert.AreEqual(v1.Length, o1.Count());
             Assert.IsTrue(v1.Zip(o1, (a, b) => a == b).All(p => p));
-            
+
             var o2 = v2.ToChainReverse();
             Array.Reverse(v2);
             Assert.AreEqual(v2.Length, o2.Count());
             Assert.IsTrue(v2.Zip(o2, (a, b) => a == b).All(p => p));
-            
+
             var o3 = v3.ToChainReverse();
             Array.Reverse(v3);
             Assert.AreEqual(v3.Length, o3.Count());

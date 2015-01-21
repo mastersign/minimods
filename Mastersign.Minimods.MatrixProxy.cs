@@ -2,11 +2,11 @@
 // <MiniMod>
 //   <Name>Matrix Proxy</Name>
 //   <Author>Tobias Kiertscher &lt;dev@mastersign.de&gt;</Author>
-//   <LastChanged>2012-09-07</LastChanged>
-//   <Version>1.0.0.0</Version>
-//   <Url>https://raw.github.com/mastersign/minimods/master/de.mastersign.minimods.matrixproxy.cs</Url>
+//   <LastChanged>2015-01-21</LastChanged>
+//   <Version>1.1.0</Version>
+//   <Url>https://gist.github.com/mastersign/a637cc31da1da2971a64/raw/Mastersign.Minimods.MatrixProxy.cs</Url>
 //   <Description>
-//     This minimod allows the unified acces to different representations of 2D-matrices.
+//     This minimod allows the unified access to different representations of 2D-matrices.
 //     It allows the access to 2D-array, jagged array, and linear array.
 //     Further, it supports row-column-order and column-row-order and
 //     reversing of index directions.
@@ -18,7 +18,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace de.mastersign.minimods.matrixproxy
+namespace Mastersign.Minimods.MatrixProxy
 {
     /// <summary>
     /// The interface for a matrix proxy allowing unified access to the matrix elements.
