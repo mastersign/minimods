@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Minimods>
+  <Minimod id="DictionaryExtension">
+    <Gist>b9065d2cdcdbd13b78db</Gist>
+  </Minimod>
+  <Minimod id="TemporaryFolder">
+    <Gist>15cf94ebcf356d15da59</Gist>
+  </Minimod>
+  <Minimod id="Chain">
+    <Gist>48db629fd2375a41ab5d</Gist>
+  </Minimod>
+  <Minimod id="MatrixProxy">
+    <Gist>a637cc31da1da2971a64</Gist>
+  </Minimod>
+  <Minimod id="ObjReader">
+    <Gist>c3d4d1a4bb552cdbfa53</Gist>
+  </Minimod>
+  <Minimod id="BitmapTools">
+    <Gist>68bc1c14d77b86e6a4ad</Gist>
+  </Minimod>
+  <Minimod id="BitmapToBitmapSource">
+    <Gist>8d81d5be4f7b31e0cf9a</Gist>
+  </Minimod>
+</Minimods>
