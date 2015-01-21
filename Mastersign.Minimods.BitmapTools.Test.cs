@@ -369,7 +369,7 @@ namespace Mastersign.Minimods.BitmapTools.Test
         }
     }
 
-    public class BitmapExtensionTest
+    internal class BitmapExtensionTest
     {
         [Test]
         public void SetPaletteToGrayScaleTest()

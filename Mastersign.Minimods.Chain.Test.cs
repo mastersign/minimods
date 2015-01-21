@@ -206,7 +206,7 @@ namespace Mastersign.Minimods.Chain.Test
         }
     }
 
-    public class ChainExtensionTest
+    internal class ChainExtensionTest
     {
         [Test, Category("Algorithm")]
         public void ToChainReverseEmptyTest()
