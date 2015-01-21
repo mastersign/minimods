@@ -51,12 +51,15 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Mastersign.Minimod.DictionaryExtension.cs" />
+    <Compile Include="Mastersign.Minimod.TemporaryFolder.cs" />
     <Compile Include="Mastersign.Minimods.BitmapToBitmapSource.cs" />
     <Compile Include="Mastersign.Minimods.BitmapTools.cs" />
     <Compile Include="Mastersign.Minimods.Chain.cs" />
     <Compile Include="Mastersign.Minimods.MatrixProxy.cs" />
     <Compile Include="Mastersign.Minimods.BitmapTools.Test.cs" />
     <Compile Include="Mastersign.Minimods.Chain.Test.cs" />
+    <Compile Include="Mastersign.Minimods.ObjReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
