@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
-using Mastersign.Minimods.BitmapTools;
 
 namespace Mastersign.Minimods.BitmapTools.Test
 {
-    public class BitmapToolsTest
+    internal class BitmapToolsTest
     {
         [Test]
         public void CreateGrayScaleBitmapTest()

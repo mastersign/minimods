@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
-using Mastersign.Minimods.Chain;
 
 namespace Mastersign.Minimods.Chain.Test
 {
-    public class ChainTest
+    internal class ChainTest
     {
         [Test, Category("Base")]
         public void IsEmptyTest()
