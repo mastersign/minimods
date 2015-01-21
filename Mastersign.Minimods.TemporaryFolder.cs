@@ -15,7 +15,7 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace Mastersign.Minimod
+namespace Mastersign.Minimods
 {
     /// <summary>
     /// Represents a temporary folder in the file system.

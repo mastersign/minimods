@@ -14,7 +14,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Mastersign.Minimod
+namespace Mastersign.Minimods
 {
     /// <summary>
     /// This static class contains extension methods for <see cref="IDictionary{TKey,TValue}"/>.
